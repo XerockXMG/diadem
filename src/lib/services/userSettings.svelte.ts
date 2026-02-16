@@ -110,15 +110,8 @@ export function getDefaultUserSettings(): UserSettings {
 			s2cell: {
 				category: "s2cell",
 				enabled: false,
-				filters: [
-					{
-						level: 14,
-						id: "s2celldefault",
-						title: { message: "s2_cells" },
-						enabled: true,
-						icon: { isUserSelected: false }
-					}
-				]
+				level: 14,
+				wayfarerMode: false
 			},
 			nest: { category: "nest", ...defaultFilter() },
 			spawnpoint: { category: "spawnpoint", ...defaultFilter() },

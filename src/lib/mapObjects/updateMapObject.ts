@@ -64,8 +64,6 @@ export async function updateMapObject(
 			filter = getUserSettings().filters.gym;
 		} else if (type === MapObjectType.STATION) {
 			filter = getUserSettings().filters.station;
-		} else if (type === MapObjectType.S2_CELL) {
-			filter = getUserSettings().filters.s2cell;
 		} else if (type === MapObjectType.NEST) {
 			filter = getUserSettings().filters.nest;
 		} else if (type === MapObjectType.SPAWNPOINT) {
@@ -74,6 +72,8 @@ export async function updateMapObject(
 			filter = getUserSettings().filters.route;
 		} else if (type === MapObjectType.TAPPABLE) {
 			filter = getUserSettings().filters.tappable;
+		} else if (type === MapObjectType.S2_CELL) {
+			filter = getUserSettings().filters.s2cell
 		} else {
 			console.log("unknown type while udpating map objects!");
 			return;
@@ -87,7 +87,7 @@ export async function updateMapObject(
 	}
 
 	let examined: number = 0;
-	let data: MapData[] | undefined = undefined;
+	let data: Partial<MapData>[] | undefined = undefined;
 	if (type === MapObjectType.S2_CELL) {
 		data = getS2CellMapObjects(getBounds(), filter as FilterS2Cell);
 		examined = data.length;

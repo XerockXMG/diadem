@@ -6,9 +6,6 @@
 	import NumberInput from '@/components/ui/input/NumberInput.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import { onSettingsChange } from '@/lib/services/settings';
-	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
-	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
-	import Slider from "@/components/ui/input/slider/Slider.svelte";
 </script>
 
 <MenuCard

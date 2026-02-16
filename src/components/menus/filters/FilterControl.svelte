@@ -22,6 +22,7 @@
 	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
 	import { mAny } from "@/lib/utils/anyMessage";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import S2CellFilters from "@/components/menus/filters/S2CellFilters.svelte";
 
 	let {
 		majorCategory,
@@ -93,7 +94,7 @@
 {/snippet}
 
 <div
-	class="py-2 pr-4 pl-0 --border-red-200 --border-1"
+	class="py-2 pr-4 pl-0"
 	class:py-0!={isEnabled && isFilterable && !hasAnyFilterset}
 >
 	<div class="flex gap-2 justify-start items-center whitespace-normal">
@@ -191,6 +192,10 @@
 				{/if}
 			</div>
 		{/if}
+	{/if}
+
+	{#if isEnabled && mapObject === MapObjectType.S2_CELL}
+		<S2CellFilters />
 	{/if}
 </div>
 

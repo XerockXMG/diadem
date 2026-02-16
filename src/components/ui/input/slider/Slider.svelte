@@ -29,7 +29,25 @@
 </script>
 
 <div class="py-3 px-1" class:pb-10={Boolean(labels)}>
-	<MenuTitle {title} {description} class="mb-3" />
+	<div class="flex w-full mb-3 items-center">
+		<MenuTitle {title} {description} />
+
+		{#if labels}
+			<div class="px-3 w-14 text-center ml-auto border rounded-md py-1 border-border">
+				{labels[value] ?? value / step}
+			</div>
+		{:else}
+			<Input
+				class="w-20 text-center ml-auto"
+				type="number"
+				{value}
+				onchange={(e) => {
+					value = Number(e.target?.value ?? value)
+					onchange(value)
+				}}
+			/>
+		{/if}
+	</div>
 
 	<div class="flex gap-2">
 		<Slider.Root
@@ -50,16 +68,14 @@
 			{/snippet}
 		</Slider.Root>
 
-		<div class="shrink-0 border rounded-md px-3 py-1 w-18 text-center">
-			{#if labels}
-				{labels[value] ?? value / step}
-			{:else if label}
-				{label.replace("%", (value / step).toString())}
-			{:else}
-				{value / step}
-			{/if}
-		</div>
+<!--		<div class="shrink-0 border rounded-md px-3 py-1 w-18 text-center">-->
+<!--			{#if labels}-->
+<!--				{labels[value] ?? value / step}-->
+<!--			{:else if label}-->
+<!--				{label.replace("%", (value / step).toString())}-->
+<!--			{:else}-->
+<!--				{value / step}-->
+<!--			{/if}-->
+<!--		</div>-->
 	</div>
-
-
 </div>

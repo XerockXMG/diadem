@@ -51,19 +51,16 @@ export function cellToFeature(
 }
 
 export function getS2CellMapObjects(bounds: Bounds, filter: FilterS2Cell) {
-	let levels = filter.filters.flatMap((f) => f.level ?? []);
+	const cells = getCoveringS2Cells(bounds, filter.level);
 
-	return levels.flatMap((level) => {
-		const cells = getCoveringS2Cells(bounds, level);
-		if (cells.length > LIMIT_S2_CELLS) return [];
+	if (cells.length > LIMIT_S2_CELLS) return [];
 
-		return cells.map((cellId) => {
-			return {
-				id: cellId.toString(),
-				lat: 0,
-				lon: 0,
-				cellId: cellId
-			} as Partial<S2CellData>;
-		});
+	return cells.map((cellId) => {
+		return {
+			id: cellId.toString(),
+			lat: 0,
+			lon: 0,
+			cellId: cellId
+		} as Partial<S2CellData>;
 	});
 }

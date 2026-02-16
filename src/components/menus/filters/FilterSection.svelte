@@ -101,18 +101,6 @@
 					{/each}
 				</div>
 			{/if}
-			<!--			<div class="px-4 mb-0.5">-->
-			<!--				<Button class="w-full justify-start!" variant="ghost" onclick={() => subcategoriesExpanded = !subcategoriesExpanded}>-->
-			<!--					{#if subcategoriesExpanded}-->
-			<!--						<span>Less</span>-->
-			<!--						<ChevronUp size="18" />-->
-			<!--					{:else}-->
-			<!--						<span>Show categories</span>-->
-			<!--						<ChevronDown size="18" />-->
-			<!--					{/if}-->
-
-			<!--				</Button>-->
-			<!--			</div>-->
 		{/if}
 	</Card>
 {/if}

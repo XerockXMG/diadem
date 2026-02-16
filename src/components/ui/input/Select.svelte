@@ -12,12 +12,14 @@
 		title,
 		description = "",
 		options,
+		class: class_ = ""
 	}: {
 		onselect: (value: string) => void,
 		value: string,
 		title: string,
 		description?: string,
-		options: {value: string, label: string}[]
+		options: {value: string, label: string}[],
+		class?: string
 	} = $props()
 </script>
 
@@ -46,7 +48,7 @@
 <Button
 	variant="ghost"
 	size=""
-	class="relative group py-3 px-4 w-full flex justify-between! items-center text-left rounded-md"
+	class="{class_} relative group w-full flex justify-between! items-center text-left rounded-md"
 	onclick={() => openModal("select")}
 >
 	<MenuTitle {title} {description} />

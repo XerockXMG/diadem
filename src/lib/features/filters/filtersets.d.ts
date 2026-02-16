@@ -134,10 +134,6 @@ export type FiltersetMaxBattle = BaseFilterset & {
 	hasGmax?: boolean;
 };
 
-export type FiltersetS2Cell = BaseFilterset & {
-	level?: number;
-};
-
 export type FiltersetNest = BaseFilterset & {
 	pokemon?: Pokemon[];
 }

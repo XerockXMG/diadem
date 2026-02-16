@@ -54,6 +54,7 @@
 	Icon={Paintbrush}
 >
 	<Select
+		class="py-3 px-4 "
 		title={m.settings_language()}
 		value={getLocale()}
 		onselect={(locale) => setLocale(locale)}
@@ -135,6 +136,7 @@
 	</MenuGeneric>
 
 	<Select
+		class="py-3 px-4 "
 		title={m.settings_external_map_provider()}
 		value={getUserSettings().externalMapProvider}
 		onselect={(mapProvider) => onSettingsChange("externalMapProvider", mapProvider)}

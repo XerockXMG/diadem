@@ -10,7 +10,6 @@ import type {
 	FiltersetQuest,
 	FiltersetRaid,
 	FiltersetRoute,
-	FiltersetS2Cell,
 	FiltersetSpawnpoint,
 	FiltersetStationPlain,
 	FiltersetTappable
@@ -36,7 +35,7 @@ export type FilterCategory =
 	| "s2cell"
 	| "nest"
 	| "spawnpoint"
-	| "tappable"
+	| "tappable";
 
 export type AnyFilter =
 	| FilterPokemon
@@ -58,7 +57,7 @@ export type AnyFilter =
 	| FilterS2Cell
 	| FilterNest
 	| FilterSpawnpoint
-	| FilterTappable
+	| FilterTappable;
 
 type BaseFilter = {
 	category: FilterCategory;
@@ -158,20 +157,21 @@ export type FilterMaxBattle = BaseFilter & {
 
 export type FilterS2Cell = BaseFilter & {
 	category: "s2cell";
-	filters: FiltersetS2Cell[];
+	level: number;
+	wayfarerMode: boolean;
 };
 
 export type FilterNest = BaseFilter & {
 	category: "nest";
 	filters: FiltersetNest[];
-}
+};
 
 export type FilterSpawnpoint = BaseFilter & {
 	category: "spawnpoint";
 	filters: FiltersetSpawnpoint[];
-}
+};
 
 export type FilterTappable = BaseFilter & {
 	category: "tappable";
 	filters: FiltersetTappable[];
-}
+};

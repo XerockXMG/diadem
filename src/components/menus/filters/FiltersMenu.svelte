@@ -6,13 +6,6 @@
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { Features } from "@/lib/utils/features";
-
-	let test: boolean = $state(false);
-
-	function onS2CellChange(value) {
-		getUserSettings().filters.s2cell.filters.levels = [value];
-		updateUserSettings();
-	}
 </script>
 
 <svelte:head>
@@ -99,7 +92,7 @@
 		title={m.s2_cells()}
 		mapObject={MapObjectType.S2_CELL}
 		category="s2cell"
-		isFilterable={true}
+		isFilterable={false}
 	/>
 
 	<FilterSection
