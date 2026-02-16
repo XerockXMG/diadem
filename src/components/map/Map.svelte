@@ -45,6 +45,7 @@
 	import { featureCollection } from "@turf/turf";
 	import { getKojiGeofences } from "@/lib/features/koji";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
+	import { getConfig } from "@/lib/services/config/config";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -153,6 +154,8 @@
 	onmoveend={onMapMoveEnd}
 	onload={onMapLoad}
 	oncontextmenu={onContextMenu}
+	minZoom={getConfig().general.minZoom}
+	maxZoom={getConfig().general.maxZoom}
 >
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer

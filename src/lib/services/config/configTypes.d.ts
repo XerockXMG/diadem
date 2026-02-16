@@ -36,6 +36,8 @@ type General = {
 	defaultLat?: number
 	defaultLon?: number
 	defaultZoom?: number
+	minZoom?: number
+	maxZoom?: number
 }
 
 export type DbCreds = {

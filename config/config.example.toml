@@ -111,6 +111,10 @@ defaultLat = 51.516855
 defaultLon = -0.080500
 defaultZoom = 15
 
+# Min/Max zoom for users, leave commented out to disable
+#minZoom = 0
+#maxZoom = 20
+
 # Tools are extra functionality that go beyond what a pogo map should do.
 # You can configure them here.
 # Note that certain tools may be disabled if they're not set up or users lack permissions.
