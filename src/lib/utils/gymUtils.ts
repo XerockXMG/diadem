@@ -75,7 +75,7 @@ export function shouldDisplayRaid(data: GymData) {
 	// only active raids
 	if ((data.raid_end_timestamp ?? 0) < timestamp || !data.raid_level) return false
 
-	if (isCurrentSelectedOverwrite()) return true
+	if (isCurrentSelectedOverwrite(data.mapId)) return true
 
 	// general disabling
 	const gymFilters = getActiveGymFilter()

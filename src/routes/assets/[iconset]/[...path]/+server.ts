@@ -42,7 +42,7 @@ export async function GET({ params, fetch, url }) {
 
 		const buffer = Buffer.from(await res.arrayBuffer());
 
-		const webp = await sharp(buffer).resize(resizeOptions).webp({ quality: 80 }).toBuffer();
+		const webp = await sharp(buffer).resize(resizeOptions).webp({ quality: 100 }).toBuffer();
 
 		log.info(
 			"[%s] Serving icon %s (width=%s) / fetch: %fms + optimizing: %fms",
@@ -56,7 +56,7 @@ export async function GET({ params, fetch, url }) {
 		return new Response(webp, {
 			headers: {
 				...cacheHttpHeaders(),
-				"Content-Type": "image/webp",
+				"Content-Type": "image/webp"
 			}
 		});
 	} catch (err) {

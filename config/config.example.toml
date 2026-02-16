@@ -164,18 +164,17 @@ url = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 
 ### UICON Sets
 
-
 [[client.uiconSets]]
 id = "DEFAULT"  # One DEFAULT is required, and it's intended to be this
 name = "GO"
 url = "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"
 
 base = { scale = 0.5 }
-gym = { offsetY = -41 }
-raid_pokemon = { scale = 1.2, offsetY = -50 }
-raid_pokemon_6 = { scale = 1.2, offsetY = -120 }
-raid_egg = { scale = 0.17, offsetY = -120 }
-raid_egg_6 = { scale = 0.17, offsetY = -230 }
+gym = { offsetY = -27, scale = 0.8 }
+raid_pokemon = { scale = 1.6, offsetY = -40 }
+raid_pokemon_6 = { scale = 1.6, offsetY = -92 }
+raid_egg = { scale = 0.3, offsetY = -62 }
+raid_egg_6 = { scale = 0.3, offsetY = -135 }
 
 [[client.uiconSets]]
 id = "pogoOutline"
@@ -193,9 +192,10 @@ id = "home"
 name = "Home"
 url = "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/UICONS_OS_128/"
 
-base = { scale = 0.25 }
-pokemon = true
-pokestop = true
+pokemon = { scale = 0.4 }
+pokestop = { scale = 0.5, offsetY = -30 }
+quest = { scale = 0.4, offsetX = -40, offsetY = -45, spacing = 60 }
+invasion = { scale = 0.35, offsetX = 40, offsetY = -49, spacing = 60 }
 
 [[client.uiconSets]]
 id = "shuffle"
@@ -203,7 +203,7 @@ name = "Shuffle"
 url = "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/"
 
 base = { scale = 0.09 }
-pokemon = { scale = 0.5 }
+pokemon = { scale = 0.4 }
 pokestop = { default = true, offsetY = -25, scale = 0.5 }
 station = { default = true, offsetY = -25, scale = 0.5 }
 quest = { scale = 0.4, offsetX = -40, offsetY = -40, spacing = 60 }
@@ -216,5 +216,5 @@ name = "Shiny"
 url = "https://raw.githubusercontent.com/jms412/PkmnShuffleMap/master/UICONS_Half_Shiny_128/"
 
 base = { scale = 0.25 }
-pokemon = true
+pokemon = { scale = 0.4 }
 

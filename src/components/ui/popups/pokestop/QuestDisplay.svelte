@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import { mQuest } from "@/lib/services/ingameLocale";
-	import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
+	import type { PokestopData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 	import { getIconReward } from "@/lib/services/uicons.svelte.js";
 	import * as m from "@/lib/paraglide/messages";
 	import PokestopSection from "@/components/ui/popups/pokestop/PokestopSection.svelte";
@@ -18,7 +18,8 @@
 		isAr,
 		questTitle,
 		questTarget,
-		questTimestamp
+		questTimestamp,
+		pokestop
 	}: {
 		expanded: boolean
 		isAr: boolean
@@ -26,6 +27,7 @@
 		questTitle: string
 		questTarget: number
 		questTimestamp: number
+		pokestop: PokestopData
 	} = $props();
 
 	let reward: QuestReward | undefined = $derived(parseQuestReward(questRewards));
@@ -36,7 +38,7 @@
 	});
 </script>
 
-{#if questTarget && reward && shouldDisplayQuest(reward, questTitle, questTarget, isAr)}
+{#if questTarget && reward && shouldDisplayQuest(reward, questTitle, questTarget, isAr, pokestop)}
 	<PokestopSection>
 		<div class="w-7 h-7 shrink-0">
 			{#if reward}

@@ -150,6 +150,7 @@
 				questTitle={data.quest_title}
 				questTarget={data.quest_target}
 				questTimestamp={data.quest_timestamp}
+				pokestop={data}
 			/>
 			<QuestDisplay
 				expanded={false}
@@ -158,6 +159,7 @@
 				questTitle={data.alternative_quest_title}
 				questTarget={data.alternative_quest_target}
 				questTimestamp={data.alternative_quest_timestamp}
+				pokestop={data}
 			/>
 
 			{@render lureSection()}
@@ -180,6 +182,7 @@
 				questTitle={data.quest_title}
 				questTarget={data.quest_target}
 				questTimestamp={data.quest_timestamp}
+				pokestop={data}
 			/>
 			<QuestDisplay
 				expanded={true}
@@ -188,6 +191,7 @@
 				questTitle={data.alternative_quest_title}
 				questTarget={data.alternative_quest_target}
 				questTimestamp={data.alternative_quest_timestamp}
+				pokestop={data}
 			/>
 
 			{@render lureSection()}

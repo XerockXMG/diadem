@@ -47,7 +47,7 @@ export function getActiveStationFilter() {
 }
 
 export function shouldDisplayStation(station: StationData) {
-	if (isCurrentSelectedOverwrite()) return true;
+	if (isCurrentSelectedOverwrite(station.mapId)) return true;
 
 	const stationFilter = getActiveStationFilter();
 	if (!stationFilter.enabled) return false;

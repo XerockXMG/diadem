@@ -241,7 +241,7 @@ export function shouldDisplayIncidient(incident: Incident, pokestop: Partial<Pok
 	// only active incidents
 	if ((incident.expiration ?? 0) < timestamp) return false;
 
-	if (isCurrentSelectedOverwrite()) return true;
+	if (isCurrentSelectedOverwrite(pokestop.mapId!)) return true;
 
 	const pokestopFilters = getActivePokestopFilter();
 	if (!pokestopFilters.enabled) return false;
@@ -266,9 +266,10 @@ export function shouldDisplayQuest(
 	reward: QuestReward,
 	title: string,
 	target: number,
-	isAr: boolean
+	isAr: boolean,
+	pokestop: PokestopData
 ) {
-	if (isCurrentSelectedOverwrite()) return true;
+	if (isCurrentSelectedOverwrite(pokestop.mapId)) return true;
 	const pokestopFilter = getActivePokestopFilter();
 	if (!pokestopFilter.enabled || !pokestopFilter.quest.enabled) return false;
 
@@ -370,7 +371,7 @@ export function shouldDisplayQuest(
 
 export function shouldDisplayLure(data: Partial<PokestopData>) {
 	if (!hasFortActiveLure(data)) return false;
-	if (isCurrentSelectedOverwrite()) return true;
+	if (isCurrentSelectedOverwrite(data.mapId!)) return true;
 	const pokestopFilters = getActivePokestopFilter();
 	if (!pokestopFilters.enabled || !pokestopFilters.lure.enabled) return false;
 
@@ -381,7 +382,7 @@ export function shouldDisplayLure(data: Partial<PokestopData>) {
 
 export function shouldDisplayContest(data: Partial<PokestopData>) {
 	if ((data.showcase_expiry ?? 0) < currentTimestamp()) return false;
-	if (isCurrentSelectedOverwrite()) return true;
+	if (isCurrentSelectedOverwrite(data.mapId!)) return true;
 
 	const pokestopFilters = getActivePokestopFilter();
 	if (!pokestopFilters.enabled || !pokestopFilters.contest.enabled) return false;

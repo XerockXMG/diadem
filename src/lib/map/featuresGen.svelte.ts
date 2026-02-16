@@ -238,12 +238,11 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 	const styles = getComputedStyle(document.documentElement);
 
-	const isSelectedOverwrite = isCurrentSelectedOverwrite();
-	const showAllPokestops = getActivePokestopFilter().pokestopPlain.enabled || isSelectedOverwrite;
-	const showLures = getActivePokestopFilter().lure.enabled || isSelectedOverwrite;
-	const showQuests = getActivePokestopFilter().quest.enabled || isSelectedOverwrite;
-	const showInvasions = getActivePokestopFilter().invasion.enabled || isSelectedOverwrite;
-	const showAllGyms = getActiveGymFilter().gymPlain.enabled || isSelectedOverwrite;
+	const showAllPokestops = getActivePokestopFilter().pokestopPlain.enabled;
+	const showLures = getActivePokestopFilter().lure.enabled;
+	const showQuests = getActivePokestopFilter().quest.enabled;
+	const showInvasions = getActivePokestopFilter().invasion.enabled;
+	const showAllGyms = getActiveGymFilter().gymPlain.enabled;
 
 	const iconSets = getCurrentUiconSetDetailsAllTypes();
 	const timestamp = currentTimestamp();
@@ -278,12 +277,17 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 		const subFeatures: MapObjectFeature[] = [];
 
+		const isSelectedOverwrite = isCurrentSelectedOverwrite(obj.mapId);
 		const isSelected = obj.mapId === selectedMapId;
 		const selectedScale = isSelected ? SELECTED_MAP_OBJECT_SCALE : 1;
 
 		if (obj.type === MapObjectType.POKESTOP) {
-			showThis = showAllPokestops || (showLures && hasFortActiveLure(obj)) || isSelected;
-			if (showQuests) {
+			showThis =
+				showAllPokestops ||
+				(showLures && hasFortActiveLure(obj)) ||
+				isSelected ||
+				isSelectedOverwrite;
+			if (showQuests || isSelectedOverwrite) {
 				const questModifiers = getModifiers(userIconSet, "quest");
 				if (obj.alternative_quest_target && obj.alternative_quest_rewards) {
 					// no ar
@@ -295,7 +299,8 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 							reward,
 							obj.alternative_quest_title ?? "",
 							obj.alternative_quest_title,
-							false
+							false,
+							obj
 						)
 					)
 						continue;
@@ -320,7 +325,10 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				if (obj.quest_target && obj.quest_rewards) {
 					// ar
 					const reward = parseQuestReward(obj.quest_rewards);
-					if (!reward || !shouldDisplayQuest(reward, obj.quest_title ?? "", obj.quest_target, true))
+					if (
+						!reward ||
+						!shouldDisplayQuest(reward, obj.quest_title ?? "", obj.quest_target, true, obj)
+					)
 						continue;
 					showThis = true;
 
@@ -352,10 +360,13 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				}
 
 				if (
-					!showInvasions ||
-					!incident.id ||
-					!isIncidentInvasion(incident) ||
-					incident.expiration < timestamp
+					!(
+						(showInvasions &&
+							incident.id &&
+							isIncidentInvasion(incident) &&
+							incident.expiration > timestamp) ||
+						isSelectedOverwrite
+					)
 				) {
 					continue;
 				}
@@ -379,7 +390,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				index += 1;
 			}
 		} else if (obj.type === MapObjectType.GYM) {
-			showThis = showAllGyms || shouldDisplayRaid(obj) || isSelected;
+			showThis = showAllGyms || shouldDisplayRaid(obj) || isSelected || isSelectedOverwrite;
 
 			if ((obj.updated ?? 0) < timestamp - FORT_OUTDATED_SECONDS) {
 				overwriteIcon = getIconGym({ team_id: 0 });
@@ -432,10 +443,10 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			if (obj.expire_timestamp && obj.expire_timestamp < timestamp) continue;
 			expires = obj.expire_timestamp;
 		} else if (obj.type === MapObjectType.STATION) {
-			showThis = false
+			showThis = false;
 			if (shouldDisplayStation(obj)) {
 				expires = obj.end_time;
-				showThis = true
+				showThis = true;
 				if (obj.battle_pokemon_id) {
 					const mapId = obj.mapId + "-maxbattle-" + obj.battle_pokemon_id;
 					const maxBattleModifiers = getModifiers(userIconSet, "max_battle");
@@ -536,7 +547,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		}
 
 		// subFeatures.push(
-		// 	getFeature("debug-red-dot", [obj.lon, obj.lat], {
+		// 	getIconFeature("debug-red-dot", [obj.lon, obj.lat], {
 		// 		imageUrl:
 		// 			"https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Red_Circle%28small%29.svg/29px-Red_Circle%28small%29.svg.png",
 		// 		id: obj.mapId,
@@ -553,7 +564,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 					id: obj.mapId,
 					imageSize: modifiers.scale,
 					selectedScale: selectedScale,
-					imageOffset: [modifiers.offsetX, modifiers.offsetY],
+					imageOffset: [modifiers.offsetX, modifiers.offsetX],
 					expires
 				})
 			);

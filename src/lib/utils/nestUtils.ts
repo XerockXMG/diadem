@@ -14,7 +14,7 @@ export function getActiveNestFilter() {
 }
 
 export function shouldDisplayNest(nest: NestData) {
-	if (isCurrentSelectedOverwrite()) return true;
+	if (isCurrentSelectedOverwrite(nest.mapId)) return true;
 
 	const nestFilter = getActiveNestFilter();
 	if (!nestFilter.enabled) return false;

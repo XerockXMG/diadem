@@ -18,6 +18,6 @@ export function getCurrentSelectedMapId() {
 	return $state.snapshot(currentSelectedData.data?.mapId) || '';
 }
 
-export function isCurrentSelectedOverwrite() {
-	return currentSelectedData.isOverwrite
+export function isCurrentSelectedOverwrite(mapId: string) {
+	return currentSelectedData.isOverwrite && currentSelectedData.data?.mapId === mapId
 }
