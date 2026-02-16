@@ -55,6 +55,7 @@ export type UserSettings = {
 	showDebugMenu: boolean;
 	mapIconSize: number;
 	externalMapProvider: ExternalMapProvider;
+	expandedMapObjects: MapObjectType[];
 	filters: {
 		pokemon: FilterPokemon;
 		pokestop: FilterPokestop;
@@ -99,6 +100,7 @@ export function getDefaultUserSettings(): UserSettings {
 		showDebugMenu: false,
 		mapIconSize: 1,
 		externalMapProvider: ExternalMapProvider.GOOGLE,
+		expandedMapObjects: [],
 		filters: {
 			pokemon: { category: "pokemon", ...defaultFilter() },
 			pokestop: getDefaultPokestopFilter(),

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isPopupExpanded, togglePopupExpanded } from '@/components/ui/popups/isPopupExpanded.svelte.js';
+	import { isPopupExpanded, togglePopupExpanded } from '@/lib/ui/expandedPopups.js';
 	import { Eye, EyeClosed, Navigation, Share2 } from 'lucide-svelte';
 	import Button from '@/components/ui/input/Button.svelte';
 	import * as m from '@/lib/paraglide/messages';
@@ -31,8 +31,8 @@
 </script>
 
 <div class="flex px-4 gap-1.5 absolute bottom-4 w-full">
-	<Button size="default" onclick={togglePopupExpanded}>
-		{#if isPopupExpanded()}
+	<Button size="default" onclick={() => togglePopupExpanded(getCurrentSelectedData()?.type)}>
+		{#if isPopupExpanded(getCurrentSelectedData()?.type)}
 			<EyeClosed size="18" />
 			<span class="@max-[304px]:hidden">
 				{m.popup_hide_details()}

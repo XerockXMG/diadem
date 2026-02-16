@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isPopupExpanded } from '@/components/ui/popups/isPopupExpanded.svelte';
+	import { isPopupExpanded } from '@/lib/ui/expandedPopups.js';
 	import PopupButtons from '@/components/ui/popups/common/PopupButtons.svelte';
 	import Card from '@/components/ui/Card.svelte';
 	import { X } from 'lucide-svelte';
@@ -9,6 +9,7 @@
 	import Button from '@/components/ui/input/Button.svelte';
 	import CloseButton from '@/components/ui/CloseButton.svelte';
 	import { closePopup } from '@/lib/mapObjects/interact';
+	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 	let {
 		lat,
@@ -43,7 +44,7 @@
 			</div>
 
 
-			{#if !isPopupExpanded()}
+			{#if !isPopupExpanded(getCurrentSelectedData()?.type)}
 				<div
 					class="mt-1"
 					in:slide={{duration: 90, easing: cubicOut}}
@@ -55,7 +56,7 @@
 		</div>
 	</div>
 
-	{#if isPopupExpanded()}
+	{#if isPopupExpanded(getCurrentSelectedData()?.type)}
 		<div
 			class="px-6 overflow-y-auto"
 			style="max-height: calc(100vh - 14rem);"
