@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import MenuTitle from '@/components/menus/MenuTitle.svelte';
-	import { closeModal, openModal } from '@/lib/ui/modal.svelte.js';
-	import Card from '@/components/ui/Card.svelte';
-	import ContextMenuItem from '@/components/ui/contextmenu/ContextMenuItem.svelte';
-	import Modal from '@/components/ui/modal/Modal.svelte';
+	import Button from "@/components/ui/input/Button.svelte";
+	import MenuTitle from "@/components/menus/MenuTitle.svelte";
+	import { closeModal, openModal, openSelectModal } from "@/lib/ui/modal.svelte.js";
+	import Card from "@/components/ui/Card.svelte";
+	import ContextMenuItem from "@/components/ui/contextmenu/ContextMenuItem.svelte";
+	import Modal from "@/components/ui/modal/Modal.svelte";
 
 	let {
 		onselect,
@@ -18,9 +18,9 @@
 		value: string,
 		title: string,
 		description?: string,
-		options: {value: string, label: string}[],
+		options: { value: string, label: string }[],
 		class?: string
-	} = $props()
+	} = $props();
 </script>
 
 {#snippet selectOption(label, optionValue)}
@@ -34,22 +34,17 @@
 	</Button>
 {/snippet}
 
-<Modal modalType="select">
-	<div
-		style="width: min(calc(100vw - 1rem), 32rem);"
-		class="py-4 px-3 flex flex-col gap-0.5 bg-popover text-popover-foreground border rounded-md"
-	>
-		{#each options as option}
-			{@render selectOption(option.label, option.value)}
-		{/each}
-	</div>
-	</Modal>
+{#snippet selectOptions()}
+	{#each options as option}
+		{@render selectOption(option.label, option.value)}
+	{/each}
+{/snippet}
 
 <Button
 	variant="ghost"
 	size=""
 	class="{class_} relative group w-full flex justify-between! items-center text-left rounded-md"
-	onclick={() => openModal("select")}
+	onclick={() => openSelectModal(selectOptions)}
 >
 	<MenuTitle {title} {description} />
 

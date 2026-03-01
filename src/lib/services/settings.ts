@@ -1,5 +1,6 @@
 import { getConfig } from "@/lib/services/config/config";
 import {
+	ExternalMapProvider,
 	getUserSettings,
 	updateUserSettings,
 	type UserSettings
@@ -12,7 +13,37 @@ import {
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { getMap } from "@/lib/map/map.svelte";
+import * as m from "@/lib/paraglide/messages";
+
+export const AVAILABLE_LANGUAGES = [
+	{
+		label: m.language_english(),
+		value: "en"
+	},
+	{
+		label: m.language_german(),
+		value: "de"
+	},
+	{
+		label: m.language_spanish(),
+		value: "es"
+	},
+	{
+		label: m.language_portuguese(),
+		value: "pt"
+	}
+];
+
+export const AVAILABLE_MAP_PROVIDERS = [
+	{
+		label: m.google_maps(),
+		value: ExternalMapProvider.GOOGLE
+	},
+	{
+		label: m.apple_maps(),
+		value: ExternalMapProvider.APPLE
+	}
+];
 
 export function onSettingsChange<K extends keyof UserSettings>(key: K, value: UserSettings[K]) {
 	getUserSettings()[key] = value;

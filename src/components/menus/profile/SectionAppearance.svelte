@@ -1,9 +1,9 @@
 <script lang="ts">
 	import * as m from "@/lib/paraglide/messages";
 	import { Cloud, Moon, Paintbrush, Sun } from "lucide-svelte";
-	import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
-	import { onMapStyleChange, onSettingsChange } from "@/lib/services/settings";
+	import { AVAILABLE_LANGUAGES, AVAILABLE_MAP_PROVIDERS, onMapStyleChange, onSettingsChange } from "@/lib/services/settings";
 	import { getConfig } from "@/lib/services/config/config";
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
@@ -17,36 +17,6 @@
 	import { setThemeMode } from "@/lib/services/themeMode";
 	import { getLocale, setLocale } from "@/lib/paraglide/runtime";
 	import { getMapStyle } from "@/lib/utils/mapStyle";
-
-	export const languages = [
-		{
-			label: m.language_english(),
-			value: "en"
-		},
-		{
-			label: m.language_german(),
-			value: "de"
-		},
-		{
-			label: m.language_spanish(),
-			value: "es"
-		},
-		{
-			label: m.language_portuguese(),
-			value: "pt"
-		}
-	];
-
-	const mapProviders = [
-		{
-			label: m.google_maps(),
-			value: ExternalMapProvider.GOOGLE
-		},
-		{
-			label: m.apple_maps(),
-			value: ExternalMapProvider.APPLE
-		}
-	]
 </script>
 
 <MenuCard
@@ -58,7 +28,7 @@
 		title={m.settings_language()}
 		value={getLocale()}
 		onselect={(locale) => setLocale(locale)}
-		options={languages}
+		options={AVAILABLE_LANGUAGES}
 	/>
 
 	{#if !isMenuSidebar()}
@@ -140,7 +110,7 @@
 		title={m.settings_external_map_provider()}
 		value={getUserSettings().externalMapProvider}
 		onselect={(mapProvider) => onSettingsChange("externalMapProvider", mapProvider)}
-		options={mapProviders}
+		options={AVAILABLE_MAP_PROVIDERS}
 	/>
 
 </MenuCard>

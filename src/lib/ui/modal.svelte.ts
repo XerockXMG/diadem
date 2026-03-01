@@ -4,6 +4,7 @@ import {
 } from "@/lib/map/mapObjectsInterval";
 import { setCurrentSearchQuery } from "@/lib/services/search.svelte";
 import { resetActiveSearchFilter } from "@/lib/features/activeSearch.svelte";
+import type { Snippet } from "svelte";
 
 export type OpenModals = {
 	search: boolean;
@@ -28,13 +29,21 @@ let openModals: OpenModals = $state({
 	filtersetRaid: false
 });
 
+let selectOptions: Snippet | undefined = $state(undefined)
+
 export function openModal(modal: ModalType) {
 	openModals[modal] = true;
 	clearUpdateMapObjectsInterval();
 }
 
+export function openSelectModal(options: Snippet) {
+	selectOptions = options
+	openModal("select")
+}
+
 export function closeModal(modal: ModalType) {
 	openModals[modal] = false;
+	selectOptions = undefined
 
 	if (!isAnyModalOpen()) {
 		resetUpdateMapObjectsInterval();
@@ -53,4 +62,8 @@ export function closeSearchModal() {
 	closeModal("search")
 	setCurrentSearchQuery("")
 	resetActiveSearchFilter()
+}
+
+export function getSelectOptions() {
+	return selectOptions
 }
