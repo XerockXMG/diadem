@@ -14,7 +14,7 @@
 		description = "",
 		options,
 		class: class_ = "",
-		children = undefined
+		trigger = undefined
 	}: {
 		onselect: (value: string) => void,
 		value: string,
@@ -22,7 +22,7 @@
 		description?: string,
 		options: { value: string, label: string }[],
 		class?: string,
-		children?: Snippet
+		trigger?: Snippet<[() => void]>
 	} = $props();
 </script>
 
@@ -43,8 +43,8 @@
 	{/each}
 {/snippet}
 
-{#if children}
-	{@render children()}
+{#if trigger}
+	{@render trigger(() => openSelectModal(selectOptions))}
 {:else}
 	<Button
 		variant="ghost"
