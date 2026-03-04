@@ -67,9 +67,9 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 			},
 			title: "filter_template_legendary_birds",
 			pokemon: [
-				{ pokemon_id: 144, form: 0 },
-				{ pokemon_id: 145, form: 0 },
-				{ pokemon_id: 146, form: 0 }
+				{ pokemon_id: 144, form: 716  },
+				{ pokemon_id: 145, form: 773 },
+				{ pokemon_id: 146, form: 836 }
 			]
 		}),
 		filterset<FiltersetPokemon>({
