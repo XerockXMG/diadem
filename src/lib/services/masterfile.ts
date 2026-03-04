@@ -41,7 +41,7 @@ export function getSpawnablePokemon(onlyActive: boolean = false): {pokemon_id: n
 	const allPokemon: {pokemon_id: number, form: number}[] = []
 
 	for (const [strPokemonId, pokemon] of Object.entries(masterFile.pokemon)) {
-		if (pokemon.legendary || pokemon.mythical || pokemon.ultraBeast) continue
+		if (pokemon.mythical || pokemon.ultraBeast) continue
 
 		const pokemonId = Number(strPokemonId)
 		const defaultForm = pokemon.defaultFormId ?? 0
