@@ -386,7 +386,7 @@ export function initSearch() {
 	}
 
 	const fortEntries = fortData.data.map((fort) => {
-		if (fort.type === "p") {
+		if (fort.type === "p" && fort.name) {
 			return {
 				name: fort.name,
 				imageUrl: fort.url,
@@ -394,7 +394,7 @@ export function initSearch() {
 				key: fort.id,
 				category: "pogo_pokestop"
 			} as PokestopSearchEntry;
-		} else if (fort.type === "g") {
+		} else if (fort.type === "g" && fort.name) {
 			return {
 				name: fort.name,
 				imageUrl: fort.url,
