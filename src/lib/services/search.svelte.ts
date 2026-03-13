@@ -1,6 +1,6 @@
 import type { Coords } from "@/lib/utils/coordinates";
 import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
-import createFuzzySearch, {
+import microfuzz, {
 	fuzzyMatch,
 	type FuzzyResult,
 	type FuzzySearcher,
@@ -30,6 +30,8 @@ import { openModal } from "@/lib/ui/modal.svelte";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+
+const createFuzzySearch = microfuzz?.default ?? microfuzz
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
@@ -385,8 +387,19 @@ export function initSearch() {
 		});
 	}
 
-	const fortEntries = fortData.data.map((fort) => {
-		if (fort.type === "p" && fort.name) {
+	const fortEntries = fortData.data
+		.filter((f) => f.name)
+		.map((fort) => {
+			if (fort.type === "g") {
+				return {
+					name: fort.name,
+					imageUrl: fort.url,
+					type: SearchableType.GYM,
+					key: fort.id,
+					category: "pogo_gym"
+				} as GymSearchEntry;
+			}
+
 			return {
 				name: fort.name,
 				imageUrl: fort.url,
@@ -394,16 +407,7 @@ export function initSearch() {
 				key: fort.id,
 				category: "pogo_pokestop"
 			} as PokestopSearchEntry;
-		} else if (fort.type === "g" && fort.name) {
-			return {
-				name: fort.name,
-				imageUrl: fort.url,
-				type: SearchableType.GYM,
-				key: fort.id,
-				category: "pogo_gym"
-			} as GymSearchEntry;
-		}
-	});
+		});
 
 	// order matters. sorted by priority
 	const allSearchResults = [
@@ -419,7 +423,7 @@ export function initSearch() {
 		...contestEntries,
 		...questEntries,
 		...lureEntries,
-		...fortEntries,
+		...fortEntries
 	];
 	fuzzy = createFuzzySearch(allSearchResults, { getText: (e) => [e.name, m[e.category]?.()] });
 }

@@ -13,7 +13,8 @@ export class MasterfileProvider extends BaseDataProvider<MasterFile> {
 	}
 
 	protected async query(): Promise<MasterFile> {
-		const data = await this.fetchData(url, log, "masterfile") as MasterFile
+		const rawData = await this.fetchData(url, log, "masterfile")
+		const data = JSON.parse(rawData) as MasterFile
 
 		return {
 			pokemon: data.pokemon,

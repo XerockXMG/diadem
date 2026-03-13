@@ -2,6 +2,7 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 import path from "path";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
 	plugins: [
@@ -10,6 +11,7 @@ export default defineConfig({
 			outdir: "./src/lib/paraglide",
 			strategy: ["localStorage", "preferredLanguage", "baseLocale"]
 		}),
+		tailwindcss(),
 		sveltekit()
 	],
 	resolve: {
