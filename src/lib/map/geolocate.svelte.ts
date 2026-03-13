@@ -76,7 +76,7 @@ export function updateLocation() {
 			}
 			map.flyTo({
 				center: [s.coords.longitude, s.coords.latitude],
-				zoom: 17
+				zoom: 14.5
 			})
 			tick().then(() => animateLocationMarker = true)
 		},
