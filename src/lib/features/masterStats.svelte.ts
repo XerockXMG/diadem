@@ -112,6 +112,10 @@ export function getQuestRewards<T extends RewardType>(
 	return Array.from(groupedMap.values());
 }
 
+export function getTotalQuests() {
+	return masterStats?.totalQuests?.count ?? 0
+}
+
 export function getActiveRaids(): ActiveRaidStats[] {
 	return masterStats?.activeRaids ?? [];
 }

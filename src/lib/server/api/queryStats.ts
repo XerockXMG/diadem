@@ -1,6 +1,8 @@
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import { getQuestKey, parseQuestReward } from "@/lib/utils/pokestopUtils";
+import { getQuestKey, parseQuestReward, RewardType } from "@/lib/utils/pokestopUtils";
+import { getMasterPokemon } from "@/lib/services/masterfile";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 
 type AllShinyStatsRow = {
 	pokemon_id: number;
@@ -201,7 +203,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			"SELECT battle_level AS level, battle_pokemon_id AS pokemon_id, battle_pokemon_form AS form, battle_pokemon_bread_mode AS bread_mode, COUNT(*) as count " +
 				"FROM station " +
 				"WHERE battle_pokemon_id IS NOT NULL " +
-				"AND updated > UNIX_TIMESTAMP() - 86400 " +
+				"AND battle_start > UNIX_TIMESTAMP() - 86400 " +
 				"GROUP BY 1, 2, 3, 4"
 		),
 		query<NestStatsRow[]>(
@@ -229,22 +231,35 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	if (allShinyStats.result) {
 		for (const row of allShinyStats.result) {
-			const key = `${row.pokemon_id}-${row.form}`;
+			const form = getNormalizedForm(row.pokemon_id, row.form)
+
+			const key = `${row.pokemon_id}-${form}`;
 			if (!pokemon[key]) {
 				pokemon[key] = {};
 			}
+
 			const stats = row[""][0];
-			pokemon[key].shiny = {
-				shinies: Number(stats?.shinies ?? 0),
-				total: Number(stats?.total ?? 0),
-				days: stats?.days ?? 0
-			};
+			const shinies = Number(stats?.shinies ?? 0)
+			const total = Number(stats?.total ?? 0)
+
+			if (pokemon[key].shiny) {
+				pokemon[key].shiny.shinies += shinies
+				pokemon[key].shiny.total += total
+			} else {
+				pokemon[key].shiny = {
+					shinies,
+					total,
+					days: stats?.days ?? 0
+				};
+			}
 		}
 	}
 
 	if (allSpawnStats.result) {
 		for (const row of allSpawnStats.result) {
-			const key = `${row.pokemon_id}-${row.form}`;
+			const form = getNormalizedForm(row.pokemon_id, row.form);
+
+			const key = `${row.pokemon_id}-${form}`;
 			if (!pokemon[key]) {
 				pokemon[key] = {};
 			}
@@ -256,10 +271,15 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				pokemonTotalDays = stats?.days ?? 0;
 			}
 
-			pokemon[key].spawns = {
-				count: Number(stats?.count ?? 0),
-				days: stats?.days ?? 0
-			};
+			const count = Number(stats?.count ?? 0)
+			if (pokemon[key].spawns) {
+				pokemon[key].spawns.count += count
+			} else {
+				pokemon[key].spawns = {
+					count,
+					days: stats?.days ?? 0
+				};
+			}
 		}
 	}
 
@@ -267,6 +287,10 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		for (const row of allQuestStats.result) {
 			const questReward = parseQuestReward(row.quest_rewards);
 			if (!questReward) continue;
+
+			if (questReward.type === RewardType.POKEMON) {
+				questReward.info.form = getNormalizedForm(questReward.info.pokemon_id, questReward.info.form)
+			}
 
 			const key = getQuestKey(row.quest_rewards, row.quest_title, row.quest_target);
 			const count = Number(row[""][0]?.count ?? 0);
@@ -282,7 +306,10 @@ export async function queryMasterStats(): Promise<MasterStats> {
 	}
 
 	if (allRaidStats.result) {
-		activeRaids = allRaidStats.result;
+		for (const row of allRaidStats.result) {
+			row.form = getNormalizedForm(row.pokemon_id, row.form)
+			activeRaids.push(row)
+		}
 	}
 
 	if (allCharacterStats.result) {
@@ -292,9 +319,15 @@ export async function queryMasterStats(): Promise<MasterStats> {
 	if (allContestStats.result) {
 		for (const row of allContestStats.result) {
 			const count = Number(row[""][0]?.count ?? 0);
+
+			const focus = JSON.parse(row.focus) as ContestFocus;
+			if (focus.type === "pokemon" && focus.pokemon_form) {
+				focus.pokemon_form = getNormalizedForm(focus.pokemon_id, focus.pokemon_form)
+			}
+
 			activeContests.push({
 				ranking_standard: row.ranking_standard,
-				focus: JSON.parse(row.focus) as ContestFocus,
+				focus: focus,
 				count
 			});
 		}
@@ -306,7 +339,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			activeMaxBattles.push({
 				level: row.level,
 				pokemon_id: row.pokemon_id,
-				form: row.form,
+				form: getNormalizedForm(row.pokemon_id, row.form),
 				bread_mode: row.bread_mode,
 				count
 			});
@@ -318,7 +351,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			const count = Number(row[""][0]?.count ?? 0);
 			activeNests.push({
 				pokemon_id: row.pokemon_id,
-				form: row.form,
+				form: getNormalizedForm(row.pokemon_id, row.form),
 				count
 			});
 		}

@@ -9,10 +9,10 @@ export async function initDiadem() {
 	log.info("Initializing Diadem");
 
 	await Promise.all([
-		masterfileProvider.query(),
-		uiconsIndexProvider.query(),
-		remoteLocaleProvider.query(),
-		masterstatsProvider.query()
+		masterfileProvider.refresh(),
+		uiconsIndexProvider.refresh(),
+		remoteLocaleProvider.refresh(),
+		masterstatsProvider.refresh()
 	]);
 	log.info("Finished initializing");
 }

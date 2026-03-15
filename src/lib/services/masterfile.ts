@@ -23,8 +23,21 @@ export function getMasterFile() {
 	return masterFile
 }
 
-export function getMasterPokemon(pokemonId: string | number): MasterPokemon | undefined {
-	return masterFile.pokemon["" + pokemonId]
+export function getMasterPokemon(pokemonId: string | number, formId: string | number | undefined = undefined, tempEvoId: string | number | undefined = undefined): MasterPokemon | undefined {
+	const pokemon = masterFile.pokemon["" + pokemonId]
+	if (!formId && !tempEvoId) return pokemon
+
+	if (tempEvoId) {
+		const tempEvo = pokemon.tempEvos["" + tempEvoId];
+		if (tempEvo) return tempEvo;
+	}
+
+	if (formId) {
+		const form = pokemon.forms["" + formId];
+		if (form) return form;
+	}
+
+	return pokemon
 }
 
 const blacklistBasePokemon = [
@@ -86,7 +99,7 @@ export function getMasterWeather(weatherId: string | number | undefined): Master
 }
 
 export function getAllLureModuleIds(): number[] {
-	return Object.keys(masterFile.items)
+	return masterFile.items
 		.filter(i => i.startsWith("5"))
 		.map(Number)
 }

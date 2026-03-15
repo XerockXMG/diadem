@@ -55,7 +55,7 @@ export function formatRatio(
 		return `1:${formatNumberCompact(ratio, 1)}`;
 	}
 
-	return `1:${formatNumber(ratio, { maximumFractionDigits: ratio >= 1_000 ? 0 : 1 })}`;
+	return `1:${formatNumber(ratio, { maximumFractionDigits: ratio >= 100 ? 0 : 1 })}`;
 }
 
 type PercentageOptions = {

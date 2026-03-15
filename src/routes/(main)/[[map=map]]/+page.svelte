@@ -30,10 +30,10 @@
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
 	import Card from "@/components/ui/Card.svelte";
 	import { Search } from "lucide-svelte";
-	import { isOpenModal } from "@/lib/ui/modal.svelte";
+	import { isOpenModal } from "@/lib/ui/modal.svelte.js";
 	import ActiveSearchView from "@/components/ui/search/ActiveSearchView.svelte";
 	import MobileMenu from "@/components/menus/mobile/MobileMenu.svelte";
-	import { getIsCoverageMapActive, showCoverageMapTitle } from "@/lib/features/coverageMap.svelte";
+	import { getIsCoverageMapActive, showCoverageMapTitle } from "@/lib/features/coverageMap.svelte.js";
 	import CoverageMapTitle from "@/components/menus/coverageMap/CoverageMapTitle.svelte";
 	import { fly } from "svelte/transition";
 	import { isOnMap } from "@/lib/utils/getMapPath";
