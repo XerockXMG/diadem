@@ -64,11 +64,27 @@ type NestStatsRow = {
 	}[];
 };
 
+type RaidStatsRow = {
+	level: number;
+	pokemon_id: number;
+	form: number;
+	"": {
+		count: number;
+	}[];
+};
+
 export type ActiveRaidStats = {
 	level: number;
 	pokemon_id: number;
 	form: number;
 	count: number;
+};
+
+type InvasionStatsRow = {
+	character: number;
+	"": {
+		count: number;
+	}[];
 };
 
 export type ActiveInvasionCharacterStats = {
@@ -300,16 +316,18 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				") q " +
 				"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
 		),
-		query<ActiveRaidStats[]>(
-			"SELECT level, pokemon_id, form_id AS form, count " +
+		query<RaidStatsRow[]>(
+			"SELECT level, pokemon_id, form_id AS form, SUM(count) AS count " +
 				"FROM raid_stats " +
-				"WHERE date = (SELECT MAX(date) FROM raid_stats) AND area = 'world' " +
+				"WHERE date >= CURDATE() - INTERVAL 1 DAY AND area = 'world' " +
+				"GROUP BY 1, 2, 3 " +
 				"ORDER BY level ASC"
 		),
-		query<ActiveInvasionCharacterStats[]>(
-			"SELECT `character`, `count` " +
+		query<InvasionStatsRow[]>(
+			"SELECT `character`, SUM(`count`) AS `count` " +
 				"FROM invasion_stats " +
-				"WHERE date = (SELECT MAX(date) FROM invasion_stats) AND area = 'world' " +
+				"WHERE date >= CURDATE() - INTERVAL 1 DAY AND area = 'world' " +
+				"GROUP BY 1 " +
 				"ORDER BY `character` ASC"
 		),
 		query<ContestStatsRow[]>(
@@ -444,8 +462,14 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	if (allRaidStats.result) {
 		for (const row of allRaidStats.result) {
-			row.form = getNormalizedForm(row.pokemon_id, row.form);
-			activeRaids.push(row);
+			const form = getNormalizedForm(row.pokemon_id, row.form);
+			const count = Number(row[""][0]?.count ?? 0);
+			activeRaids.push({
+				level: row.level,
+				pokemon_id: row.pokemon_id,
+				form,
+				count
+			});
 		}
 	}
 
@@ -518,7 +542,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		for (const row of allCharacterStats.result) {
 			activeCharacters.push({
 				character: row.character,
-				count: row.count,
+				count: Number(row[""][0]?.count ?? 0),
 				first: [],
 				second: [],
 				third: []
