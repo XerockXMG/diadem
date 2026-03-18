@@ -183,8 +183,10 @@ export function getNormalizedForm(
 	const masterPokemon = getMasterPokemon(pokemonId);
 	if (!masterPokemon) return formId ?? 0
 
-	if (reverseNormalizedFormPokemonIds.has(pokemonId) && !formId) {
-		formId = masterPokemon.defaultFormId
+	if (reverseNormalizedFormPokemonIds.has(pokemonId)) {
+		if (formId === 0) {
+			formId = masterPokemon.defaultFormId;
+		}
 	} else if (masterPokemon.defaultFormId && masterPokemon.defaultFormId === formId) {
 		formId = 0;
 	}
