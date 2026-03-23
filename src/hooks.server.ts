@@ -179,9 +179,27 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 			}
 
 			addMeta(
+				'property="og:title"',
+				`<meta property="og:title" content="${general.mapName}">`
+			);
+			addMeta(
+				'name="twitter:title"',
+				`<meta name="twitter:title" content="${general.mapName}">`
+			);
+			addMeta(
 				'property="og:site_name"',
 				`<meta property="og:site_name" content="${general.mapName}">`
 			);
+			addMeta(
+				'name="twitter:site"',
+				`<meta name="twitter:site" content="${general.mapName}">`
+			);
+			if (general.description) {
+				addMeta(
+					'name="twitter:description"',
+					`<meta name="twitter:description" content="${general.description}">`
+				);
+			}
 			addMeta('property="og:type"', '<meta property="og:type" content="website">');
 
 			if (metaTags.length === 0) return html;

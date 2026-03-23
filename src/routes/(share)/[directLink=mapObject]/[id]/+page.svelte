@@ -42,7 +42,6 @@
 {#if !browser && data}
 	<Metadata
 		title={title}
-		embedTitle={title}
 		image={getConfig().general.url + `/${data.type}/${data.id}/thumbnail.png`}
 	/>
 {/if}
