@@ -16,6 +16,8 @@
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getShareTitle } from "@/lib/features/shareTexts";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import { getLocale } from "@/lib/paraglide/runtime";
+	import { getConfig } from "@/lib/services/config/config";
 
 	let {
 		lat,
@@ -26,7 +28,12 @@
 	} = $props();
 
 	function getShareUrl() {
-		return window.location.origin + getCurrentPath();
+		let url = window.location.origin + getCurrentPath();
+		const locale = getLocale()
+		if (locale !== getConfig().general.defaultLocale) {
+			url += "?lang=" + locale
+		}
+		return url
 	}
 </script>
 
