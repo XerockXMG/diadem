@@ -6,6 +6,7 @@ import { querySingleMapObject } from "@/lib/server/api/querySingleMapObject";
 import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getLogger } from "@/lib/utils/logger";
+import { getLocale, setLocale } from "@/lib/paraglide/runtime";
 
 const log = getLogger("directlink");
 export const ssr = true;
