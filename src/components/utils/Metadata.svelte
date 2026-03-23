@@ -21,7 +21,7 @@
 	let general = $derived(config.general);
 	let pageTitle = $derived(general.mapName + (title ? ` | ${title}` : ""));
 	let effectiveDescription = $derived(description ?? general.description);
-	let effectiveThumbnail = $derived(thumbnail ?? general.image);
+	let effectiveImage = $derived(image ?? general.image)
 </script>
 
 <svelte:head>
@@ -38,15 +38,15 @@
 		<meta name="twitter:description" content={effectiveDescription}>
 	{/if}
 
-	{#if effectiveThumbnail && !image}
-		<meta property="og:image" content={effectiveThumbnail} />
-		<meta name="twitter:image:src" content={effectiveThumbnail}>
+	{#if thumbnail && !image}
+		<meta property="og:image" content={thumbnail} />
+		<meta name="twitter:image:src" content={thumbnail}>
 	{/if}
 
-	{#if image}
+	{#if effectiveImage}
 		<meta name="twitter:card" content="summary_large_image">
-		<meta property="og:image" content={image} />
-		<meta name="twitter:image:src" content={image}>
+		<meta property="og:image" content={effectiveImage} />
+		<meta name="twitter:image:src" content={effectiveImage}>
 	{/if}
 
 	{#if color}

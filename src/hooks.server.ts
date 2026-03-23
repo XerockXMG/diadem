@@ -162,6 +162,20 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 					'property="og:url"',
 					`<meta property="og:url" content="${general.url}">`
 				);
+				if (!general.image) {
+					addMeta(
+						'property="og:image"',
+						`<meta property="og:image" content="${general.url}/thumbnail.png">`
+					);
+					addMeta(
+						'name="twitter:image:src"',
+						`<meta name="twitter:image:src" content="${general.url}/thumbnail.png">`
+					);
+					addMeta(
+						'name="twitter:card"',
+						'<meta name="twitter:card" content="summary_large_image">'
+					);
+				}
 			}
 
 			addMeta(

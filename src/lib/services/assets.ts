@@ -1,5 +1,6 @@
 
 export const ALLOWED_WIDTHS = ["64"];
+export const ALLOWED_FORMATS: ("webp" | "png")[] = ["webp", "png"];
 
 type ResizeOptions = {
 	width?: number

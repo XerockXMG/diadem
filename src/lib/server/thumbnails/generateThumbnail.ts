@@ -1,0 +1,62 @@
+import { render } from "svelte/server";
+import Base from "@/components/thumbnail/Base.svelte";
+import { Resvg } from "@resvg/resvg-js";
+import satori from "satori";
+import { html } from "satori-html";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import { getClientConfig } from "@/lib/services/config/config.server";
+import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
+import { getLogger } from "@/lib/utils/logger";
+
+const log = getLogger("thumbnail");
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+let interRegular: Buffer;
+let interBold: Buffer;
+
+function loadFonts() {
+	if (!interRegular || !interBold) {
+		const fontsDir = join(__dirname, "./");
+		interRegular = readFileSync(join(fontsDir, "Inter-Regular.ttf"));
+		interBold = readFileSync(join(fontsDir, "Inter-Bold.ttf"));
+	}
+}
+
+export async function generateThumbnail(rendered: ReturnType<typeof render>) {
+	loadFonts();
+
+	const markup = html("<style>" + rendered.head + "</style>" + rendered.body);
+
+	const svg = await satori(markup, {
+		width: 800,
+		height: 400,
+		fonts: [
+			{
+				name: "Inter",
+				data: interRegular,
+				weight: 400
+			},
+			{
+				name: "Inter",
+				data: interBold,
+				weight: 700
+			}
+		]
+	});
+
+	const png = new Resvg(svg, {
+		fitTo: { mode: "original" }
+	})
+		.render()
+		.asPng();
+
+	return new Response(png, {
+		headers: {
+			"Content-Type": "image/png",
+			...cacheHttpHeaders(3600)
+		}
+	});
+}

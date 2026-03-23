@@ -110,6 +110,13 @@ type MapPositions = {
 	scoutZoom: number
 }
 
+type StaticMap = {
+	enabled: boolean
+	url: string
+	diademUrl: string
+	style?: string
+}
+
 export type ClientConfig = {
 	mapStyles: MapStyle[]
 	uiconSets: UiconSet[]
@@ -126,36 +133,38 @@ export type ClientConfig = {
 
 export type ServerConfig = {
 	golbat: {
-		url: string
-		auth?: string
-		secret?: string
-		defaultNestName?: string
-	}
-	dragonite: {  // TODO: this should be optional and scout disabled
-		url: string
-		secret?: string
-		basicAuth?: string
-	}
-	db: DbCreds
+		url: string;
+		auth?: string;
+		secret?: string;
+		defaultNestName?: string;
+	};
+	dragonite: {
+		// TODO: this should be optional and scout disabled
+		url: string;
+		secret?: string;
+		basicAuth?: string;
+	};
+	db: DbCreds;
 	koji?: {
-		url: string
-		secret: string
-		projectName: string
-	}
+		url: string;
+		secret: string;
+		projectName: string;
+	};
 	nominatim?: {
-		url: string
-		basicAuth?: string
-	}
+		url: string;
+		basicAuth?: string;
+	};
 	pelias?: {
-		url: string
-		apiKey?: string
-		basicAuth?: string
-	}
-	log: Log
-	internalDb: DbCreds
-	auth: Auth
-	permissions?: Permissions[]
-}
+		url: string;
+		apiKey?: string;
+		basicAuth?: string;
+	};
+	log: Log;
+	internalDb: DbCreds;
+	auth: Auth;
+	permissions?: Permissions[];
+	staticMap?: StaticMap;
+};
 
 export type Config = {
 	server: ServerConfig

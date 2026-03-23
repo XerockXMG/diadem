@@ -12,38 +12,38 @@
 	import RedirectFlash from "@/components/ui/RedirectFlash.svelte";
 	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { getTappableName } from "@/lib/utils/tappableUtils";
+	import { getConfig } from "@/lib/services/config/config";
 
 	let { data }: PageProps = $props();
 
 	let title: string = $derived(getShareTitle(data as MapData));
 
-	let thumbnail: string = $derived.by(() => {
-		if (!data || browser) return "";
-		const mapData = data as MapData;
-
-		let icon = "";
-
-		if (mapData.type === MapObjectType.POKEMON && !mapData.id) return "";
-
-		if (mapData.type === MapObjectType.STATION && mapData.battle_pokemon_id) {
-			icon = getIconPokemon(getStationPokemon(mapData as StationData), getDefaultIconSet(MapObjectType.POKEMON).id);
-		} else if (mapData.type === MapObjectType.TAPPABLE) {
-			icon = getIconTappable(mapData)
-		} else if (mapData.type === MapObjectType.NEST && mapData.pokemon_id) {
-			icon = getIconPokemon(mapData)
-		}
-		// TODO: route share image
-
-		return icon || mapData.url || getIconForMap(mapData, getDefaultIconSet(mapData.type).id) || "";
-	});
+	// let thumbnail: string = $derived.by(() => {
+	// 	if (!data || browser) return "";
+	// 	const mapData = data as MapData;
+	//
+	// 	let icon = "";
+	//
+	// 	if (mapData.type === MapObjectType.POKEMON && !mapData.id) return "";
+	//
+	// 	if (mapData.type === MapObjectType.STATION && mapData.battle_pokemon_id) {
+	// 		icon = getIconPokemon(getStationPokemon(mapData as StationData), getDefaultIconSet(MapObjectType.POKEMON).id);
+	// 	} else if (mapData.type === MapObjectType.TAPPABLE) {
+	// 		icon = getIconTappable(mapData)
+	// 	} else if (mapData.type === MapObjectType.NEST && mapData.pokemon_id) {
+	// 		icon = getIconPokemon(mapData)
+	// 	}
+	// 	// TODO: route share image
+	//
+	// 	return icon || mapData.url || getIconForMap(mapData, getDefaultIconSet(mapData.type).id) || "";
+	// });
 </script>
 
 {#if !browser && data}
 	<Metadata
 		title={title}
 		embedTitle={title}
-		description={getShareText(data)}
-		thumbnail={thumbnail}
+		image={getConfig().general.url + `/${data.type}/${data.id}/thumbnail.png`}
 	/>
 {/if}
 

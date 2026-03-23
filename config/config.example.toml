@@ -124,6 +124,13 @@ description = ""
 allowCrawlers = false
 disallowedPaths = []  # ["/custom"] would disallow crawlers from indexing any page under /custom
 
+# When enabled, shared links to map objects will show maps in their preview
+[server.staticMap]
+enabled = false
+url = "https://tiles.example.com"  # your tileserver url, must be accessible from diadem (could be a localhost, public url, or docker url)
+diademUrl = "https://example.com"  # your diadem url, must be accessible from your tileserver (could be a localhost, public url, or docker url)
+#style = "positron"  # by default, will match the default light map style
+
 # Tools are extra functionality that go beyond what a pogo map should do.
 # You can configure them here.
 # Note that certain tools may be disabled if they're not set up or users lack permissions.

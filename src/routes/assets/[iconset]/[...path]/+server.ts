@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import sharp, { type ResizeOptions } from "sharp";
 import { getServerLogger } from "@/lib/server/logging";
-import { ALLOWED_WIDTHS } from "@/lib/services/assets";
+import { ALLOWED_FORMATS, ALLOWED_WIDTHS } from "@/lib/services/assets";
 import { getLogger } from "@/lib/utils/logger";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 
@@ -13,11 +13,17 @@ export async function GET({ params, fetch, url }) {
 	const config = getClientConfig();
 
 	const width = url.searchParams.get("w");
+	const formatParam = url.searchParams.get("format");
 	const iconSetId = params.iconset;
 	const iconPath = params.path;
 
 	if (width && !ALLOWED_WIDTHS.includes(width)) {
 		error(401, "Invalid width");
+	}
+
+	let format: typeof ALLOWED_FORMATS[number] = "webp"
+	if (formatParam && ALLOWED_FORMATS.includes(formatParam as typeof format)) {
+		format = formatParam as typeof format
 	}
 
 	const iconSet = config.uiconSets.find((s) => s.id === iconSetId);
@@ -27,12 +33,6 @@ export async function GET({ params, fetch, url }) {
 
 	const iconUrl = iconSet.url + "/" + iconPath;
 
-	const resizeOptions: ResizeOptions = {};
-	if (width) {
-		resizeOptions.width = Number(width);
-		resizeOptions.withoutEnlargement = false;
-	}
-
 	try {
 		const res = await fetch(iconUrl);
 		if (!res.ok) {
@@ -40,9 +40,19 @@ export async function GET({ params, fetch, url }) {
 		}
 		const fetchDone = performance.now();
 
-		const buffer = Buffer.from(await res.arrayBuffer());
+		let sharpImage = sharp(Buffer.from(await res.arrayBuffer()))
+		if (width) {
+			sharpImage = sharpImage.resize({
+				width: Number(width),
+				withoutEnlargement: false
+			});
+		}
 
-		const webp = await sharp(buffer).resize(resizeOptions).webp({ quality: 100 }).toBuffer();
+		if (format === "webp") {
+			sharpImage = sharpImage.webp()
+		} else if (format === "png") {
+			sharpImage = sharpImage.png()
+		}
 
 		log.info(
 			"[%s] Serving icon %s (width=%s) / fetch: %fms + optimizing: %fms",
@@ -53,10 +63,10 @@ export async function GET({ params, fetch, url }) {
 			(performance.now() - fetchDone).toFixed(1)
 		);
 
-		return new Response(webp, {
+		return new Response(await sharpImage.toBuffer(), {
 			headers: {
 				...cacheHttpHeaders(),
-				"Content-Type": "image/webp"
+				"Content-Type": "image/" + format
 			}
 		});
 	} catch (err) {

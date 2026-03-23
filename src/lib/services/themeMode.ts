@@ -23,8 +23,8 @@ export function updateDefaultMapStyle() {
 	getUserSettings().mapStyle.url = mapStyle.url
 }
 
-export function getDefaultMapStyle() {
-	return getConfig().mapStyles.find((s) => s.default === mode.current) ?? getConfig().mapStyles[0];
+export function getDefaultMapStyle(theme: "light" | "dark" | undefined = undefined) {
+	return getConfig().mapStyles.find((s) => s.default === (theme ?? mode.current)) ?? getConfig().mapStyles[0];
 }
 
 export function isDarkMode() {
