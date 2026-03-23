@@ -49,25 +49,27 @@
 </script>
 
 <div class="w-full h-full bg-zinc-50 text-zinc-900 flex text-base">
-	<div class="flex flex-col flex-1 px-6 pb-9 pt-8">
-		{#if icon}
-			<img
-				src={icon}
-				alt="icon"
-				class="w-16 h-16 rounded-full border-zinc-200"
-				class:border={fullImage}
-				style:object-fit="cover"
-			>
-		{/if}
-		<p class="text-zinc-500 font-bold text-lg uppercase my-0 mt-2">
-			{m["pogo_" + data.type]()}
-		</p>
+	<div class="flex flex-col flex-1 px-6 pl-8 pb-9 pt-8">
+		<div class="flex flex-col flex-1 justify-center h-full">
+			{#if icon}
+				<img
+					src={icon}
+					alt="icon"
+					class="w-16 h-16 rounded-full border-zinc-200"
+					class:border={fullImage}
+					style:object-fit="cover"
+				>
+			{/if}
+			<p class="text-zinc-500 font-bold text-lg uppercase my-0 mt-2">
+				{m["pogo_" + data.type]()}
+			</p>
 
-		<p class="text-3xl my-0 mt-1 h-45 overflow-hidden">
-			{getTitle()}
-		</p>
+			<p class="text-3xl my-0 mt-1 min-h-24 max-h-45 overflow-hidden">
+				{getTitle()}
+			</p>
+		</div>
 
-		<div class="flex items-center mt-auto" style:gap="0.5rem">
+		<div class="flex items-center" style:gap="0.5rem">
 			<img src={favicon} alt="logo" class="w-8 h-8 rounded-lg" />
 			<span class="text-lg font-bold">
 				{mapName}
