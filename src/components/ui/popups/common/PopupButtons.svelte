@@ -16,6 +16,7 @@
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getShareTitle } from "@/lib/features/shareTexts";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import { getLocale } from "@/lib/paraglide/runtime";
 
 	let {
 		lat,
