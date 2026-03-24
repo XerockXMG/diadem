@@ -4,7 +4,6 @@ import { INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 import type { FiltersetInvasion, FiltersetTitle } from "@/lib/features/filters/filtersets";
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils";
 import { IconCategory } from "@/lib/features/filters/icons";
-import { RaidLevel } from "@/lib/utils/gymUtils";
 
 export enum InvasionFilterType {
 	CHARACTERS = "characters",
@@ -32,7 +31,23 @@ export function generateInvasionFilterDetails(filter: FiltersetInvasion) {
 		uicon: { category: IconCategory.INVASION, params: { character: 4 } }
 	}); // male grunt as default
 
-	if (filter.characters) {
+	if (filter.rewards?.length) {
+		if (filter.rewards.length === 1) {
+			title.message = "filter_template_pokemon_invasion";
+			title.params = { pokemon: mPokemon(filter.rewards[0]) };
+
+			setFilterIcon(filter, {
+				uicon: { category: IconCategory.POKEMON, params: filter.rewards[0] }
+			});
+		} else {
+			title.message = "count_pokemon";
+			title.params = { count: filter.rewards.length.toString() };
+
+			setFilterIcon(filter, {
+				uicon: { category: IconCategory.POKEMON, params: filter.rewards[0] }
+			});
+		}
+	} else if (filter.characters) {
 		if (filter.characters.length === 1) {
 			if (
 				INVASION_CHARACTER_LEADERS.includes(filter.characters[0]) ||

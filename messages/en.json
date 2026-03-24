@@ -405,5 +405,9 @@
 	"reward_egg": "Egg",
 	"unknown_nest": "Unknown Nest",
 	"toast_copied_default": "Copied to clipboard",
-	"direct_link_no_permission": "No permission to view this {type}"
+	"direct_link_no_permission": "No permission to view this {type}",
+    "invasion_lineup_unavailable": "Lineups not available",
+    "invasion_x_possible_rewards": "{x} possible rewards",
+    "invasion_reward": "Reward",
+    "filter_template_pokemon_invasion": "{pokemon} Grunts"
 }

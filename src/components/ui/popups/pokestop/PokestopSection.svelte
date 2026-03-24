@@ -13,7 +13,7 @@
 </script>
 
 <div class="py-2 border-border border-b group-last:mb-2 {class_}">
-	<div class="flex items-center gap-2">
+	<div class="flex gap-2">
 		{@render children()}
 	</div>
 	{@render stats?.()}

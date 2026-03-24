@@ -4,7 +4,7 @@
 	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 	import LongSelectItem from "@/components/menus/filters/LongSelectItem.svelte";
 
-	type Pokemon = { pokemon_id: number; form: number }
+	type Pokemon = { pokemon_id: number; form: number; alignment?: number }
 
 	let {
 		pokemonList,

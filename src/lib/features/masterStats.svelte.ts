@@ -1,5 +1,6 @@
 import type {
 	ActiveInvasionCharacterStats,
+	InvasionPokemonStats,
 	ActiveRaidStats,
 	ContestStatsEntry,
 	EggStats,
@@ -12,6 +13,7 @@ import type {
 } from "@/lib/server/api/queryStats";
 import { getQuestKey, RewardType } from "@/lib/utils/pokestopUtils";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 
 let masterStats: MasterStats | undefined = $state(undefined);
 
@@ -114,7 +116,7 @@ export function getQuestRewards<T extends RewardType>(
 }
 
 export function getTotalQuests() {
-	return masterStats?.totalQuests?.count ?? 0
+	return masterStats?.totalQuests?.count ?? 0;
 }
 
 export function getActiveRaids(): ActiveRaidStats[] {
@@ -123,6 +125,46 @@ export function getActiveRaids(): ActiveRaidStats[] {
 
 export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
 	return Object.values(masterStats?.activeCharacters ?? {});
+}
+
+export function getInvasionLineup(character: number): ActiveInvasionCharacterStats | undefined {
+	return getActiveCharacters().find((entry) => entry.character === character);
+}
+
+export function hasInvasionLineup(character: number): boolean {
+	const lineup = getInvasionLineup(character);
+	if (!lineup) return false;
+
+	return lineup.first.length > 0 || lineup.second.length > 0 || lineup.third.length > 0;
+}
+
+export function getInvasionCatchable(
+	character: number
+): InvasionPokemonStats[] | undefined {
+	const lineup = getInvasionLineup(character);
+	if (!lineup) return undefined;
+
+	const unique = new Map<string, InvasionPokemonStats>();
+	const allSlots = [...lineup.first, ...lineup.second, ...lineup.third];
+
+	for (const pokemon of allSlots) {
+		if (!pokemon.encounter) continue;
+
+		const key = `${pokemon.pokemon_id}-${pokemon.form}`;
+		if (!unique.has(key)) {
+			unique.set(key, pokemon);
+		}
+	}
+
+	return Array.from(unique.values());
+}
+
+export function getInvasionPokemon(characterSlot: Partial<InvasionPokemonStats>): Partial<PokemonData> {
+	return {
+		pokemon_id: characterSlot.pokemon_id,
+		form: characterSlot.form,
+		alignment: 1
+	};
 }
 
 export function getActiveContests(): ContestStatsEntry[] {

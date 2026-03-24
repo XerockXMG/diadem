@@ -1,37 +1,48 @@
 <script lang="ts">
-	import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
-	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
-	import { getIconInvasion, getIconItem, getIconPokemon, getIconPokestop } from '@/lib/services/uicons.svelte.js';
-	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
-	import * as m from '@/lib/paraglide/messages';
-	import FortImage from '@/components/ui/popups/common/FortImage.svelte';
-	import { mCharacter, mItem, mPokemon } from '@/lib/services/ingameLocale';
-	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
-	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
-	import UpdatedTimes from '@/components/ui/popups/common/UpdatedTimes.svelte';
-	import FortPowerUp from '@/components/ui/popups/common/FortPowerUp.svelte';
-	import { getConfig } from '@/lib/services/config/config';
+	import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
+	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
+	import { getIconItem, getIconPokemon, getIconPokestop } from "@/lib/services/uicons.svelte.js";
+	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
+	import * as m from "@/lib/paraglide/messages";
+	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
+	import { mItem, mPokemon } from "@/lib/services/ingameLocale";
+	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
+	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
+	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
+	import FortPowerUp from "@/components/ui/popups/common/FortPowerUp.svelte";
+	import { getConfig } from "@/lib/services/config/config";
 	import { ClockAlert, Crown, Smartphone, Sparkles } from "lucide-svelte";
-	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
-	import QuestDisplay from '@/components/ui/popups/pokestop/QuestDisplay.svelte';
-	import PokestopSection from '@/components/ui/popups/pokestop/PokestopSection.svelte';
-	import ContestDisplay from '@/components/ui/popups/pokestop/ContestDisplay.svelte';
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
+	import QuestDisplay from "@/components/ui/popups/pokestop/QuestDisplay.svelte";
+	import PokestopSection from "@/components/ui/popups/pokestop/PokestopSection.svelte";
+	import ContestDisplay from "@/components/ui/popups/pokestop/ContestDisplay.svelte";
+	import InvasionDisplay from "@/components/ui/popups/pokestop/InvasionDisplay.svelte";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "@/lib/mapObjects/currentSelectedState.svelte";
 
-	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
-	import Metadata from '@/components/utils/Metadata.svelte';
+	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
 		hasFortActiveLure,
 		isIncidentContest,
 		isIncidentInvasion,
-		isIncidentKecleon, KECLEON_ID, shouldDisplayContest, shouldDisplayIncidient, shouldDisplayLure
+		isIncidentKecleon,
+		KECLEON_ID,
+		shouldDisplayContest,
+		shouldDisplayIncidient,
+		shouldDisplayLure
 	} from "@/lib/utils/pokestopUtils";
-	import { isFortOutdated } from '@/lib/utils/gymUtils';
+	import { isFortOutdated } from "@/lib/utils/gymUtils";
 	import { formatRatio } from "@/lib/utils/numberFormat";
 	import { getRarityLabel } from "@/lib/utils/pokemonUtils";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 
-	let data: PokestopData = $derived(getMapObjects()[getCurrentSelectedMapId()] as PokestopData ?? getCurrentSelectedData() as PokestopData)
+	let data: PokestopData = $derived(
+		(getMapObjects()[getCurrentSelectedMapId()] as PokestopData) ??
+			(getCurrentSelectedData() as PokestopData)
+	);
 </script>
 
 <Metadata title={data.name ?? m.pogo_pokestop()} />
@@ -40,20 +51,13 @@
 	{#if shouldDisplayLure(data)}
 		<PokestopSection>
 			<div class="w-7 h-7 shrink-0">
-				<ImagePopup
-					src={getIconItem(data.lure_id ?? 0)}
-					alt="TBD"
-					class="w-7"
-				/>
+				<ImagePopup src={getIconItem(data.lure_id ?? 0)} alt="TBD" class="w-7" />
 			</div>
 			<div>
 				<span>
 					{mItem(data.lure_id)}
 				</span>
-				<TimeWithCountdown
-					expireTime={data.lure_expire_timestamp}
-					showHours={false}
-				/>
+				<TimeWithCountdown expireTime={data.lure_expire_timestamp} showHours={false} />
 				<!--TODO: show verified lure time-->
 			</div>
 		</PokestopSection>
@@ -64,30 +68,7 @@
 	{#each data.incident as incident}
 		{#if incident.id && incident.expiration > currentTimestamp() && shouldDisplayIncidient(incident, data)}
 			{#if isIncidentInvasion(incident)}
-				<PokestopSection>
-					<div class="w-7 h-7 shrink-0">
-						<ImagePopup
-							src={getIconInvasion(incident.character, incident.confirmed)}
-							alt={mCharacter(incident.character)}
-							class="w-7"
-						/>
-					</div>
-
-					<div>
-						<span>
-							{mCharacter(incident.character)}
-
-							{#if incident.confirmed}
-								({m.confirmed()})
-							{/if}
-						</span>
-
-						<TimeWithCountdown
-							expireTime={incident.expiration}
-							showHours={incident.display_type !== 1}
-						/>
-					</div>
-				</PokestopSection>
+				<InvasionDisplay {expanded} {incident} />
 			{:else if isIncidentKecleon(incident)}
 				<PokestopSection>
 					<div class="w-7 h-7 shrink-0">
@@ -99,18 +80,11 @@
 					</div>
 					<div>
 						{mPokemon({ pokemon_id: KECLEON_ID })}
-						<TimeWithCountdown
-							expireTime={incident.expiration}
-							showHours={false}
-						/>
+						<TimeWithCountdown expireTime={incident.expiration} showHours={false} />
 					</div>
 				</PokestopSection>
 			{:else if isIncidentContest(incident)}
-				<ContestDisplay
-					{expanded}
-					{incident}
-					{data}
-				/>
+				<ContestDisplay {expanded} {incident} {data} />
 			{/if}
 		{/if}
 	{/each}
@@ -144,19 +118,19 @@
 			<QuestDisplay
 				expanded={false}
 				isAr={true}
-				questRewards={data.quest_rewards}
-				questTitle={data.quest_title}
-				questTarget={data.quest_target}
-				questTimestamp={data.quest_timestamp}
+				questRewards={data.quest_rewards ?? ""}
+				questTitle={data.quest_title ?? ""}
+				questTarget={data.quest_target ?? 0}
+				questTimestamp={data.quest_timestamp ?? 0}
 				pokestop={data}
 			/>
 			<QuestDisplay
 				expanded={false}
 				isAr={false}
-				questRewards={data.alternative_quest_rewards}
-				questTitle={data.alternative_quest_title}
-				questTarget={data.alternative_quest_target}
-				questTimestamp={data.alternative_quest_timestamp}
+				questRewards={data.alternative_quest_rewards ?? ""}
+				questTitle={data.alternative_quest_title ?? ""}
+				questTarget={data.alternative_quest_target ?? 0}
+				questTimestamp={data.alternative_quest_timestamp ?? 0}
 				pokestop={data}
 			/>
 
@@ -176,19 +150,19 @@
 			<QuestDisplay
 				expanded={true}
 				isAr={true}
-				questRewards={data.quest_rewards}
-				questTitle={data.quest_title}
-				questTarget={data.quest_target}
-				questTimestamp={data.quest_timestamp}
+				questRewards={data.quest_rewards ?? ""}
+				questTitle={data.quest_title ?? ""}
+				questTarget={data.quest_target ?? 0}
+				questTimestamp={data.quest_timestamp ?? 0}
 				pokestop={data}
 			/>
 			<QuestDisplay
 				expanded={true}
 				isAr={false}
-				questRewards={data.alternative_quest_rewards}
-				questTitle={data.alternative_quest_title}
-				questTarget={data.alternative_quest_target}
-				questTimestamp={data.alternative_quest_timestamp}
+				questRewards={data.alternative_quest_rewards ?? ""}
+				questTitle={data.alternative_quest_title ?? ""}
+				questTarget={data.alternative_quest_target ?? 0}
+				questTimestamp={data.alternative_quest_timestamp ?? 0}
 				pokestop={data}
 			/>
 

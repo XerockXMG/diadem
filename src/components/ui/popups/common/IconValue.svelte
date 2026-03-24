@@ -11,8 +11,8 @@
 	} = $props()
 </script>
 
-<div class="flex items-center">
-	<Icon class="shrink-0 size-4" />
+<div class="flex">
+	<Icon class="shrink-0 size-4 mt-1" />
 
 	<div class="ml-1.5">
 		{@render children()}
