@@ -26,7 +26,7 @@
 	} = $props();
 
 	function getShareUrl() {
-		return window.location.origin + getCurrentPath();
+		return window.location.origin + getCurrentPath() + "?lang=" + getLocale()
 	}
 </script>
 
