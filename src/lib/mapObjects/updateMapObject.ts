@@ -19,6 +19,8 @@ import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 
 export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined };
 
+let currentController: AbortController | undefined;
+
 export function clearMap() {
 	// TODO: Also do this on login
 	clearAllMapObjects();
@@ -28,26 +30,39 @@ export function clearMap() {
 export async function fetchMapObjects<T extends MapData>(
 	type: MapObjectType,
 	bounds: Bounds,
-	filter: AnyFilter | undefined = undefined
+	filter: AnyFilter | undefined = undefined,
+	signal?: AbortSignal
 ): Promise<MapObjectResponse<T> | undefined> {
 	const body: MapObjectRequestData = {
 		...getBounds(),
 		filter
 	};
-	const response = await fetch("/api/" + type, { method: "POST", body: JSON.stringify(body) });
+	try {
+		const response = await fetch("/api/" + type, {
+			method: "POST",
+			body: JSON.stringify(body),
+			signal
+		});
 
-	if (!response.ok) {
-		console.error(`Error while fetching ${type}: ${response.status}`);
-		return;
+		if (!response.ok) {
+			console.error(`Error while fetching ${type}: ${response.status}`);
+			return;
+		}
+
+		return await response.json();
+	} catch (e) {
+		if (e instanceof DOMException && e.name === "AbortError") {
+			return;
+		}
+		console.error(`Error while fetching ${type}`, e);
 	}
-
-	return await response.json();
 }
 
 export async function updateMapObject(
 	type: MapObjectType,
 	removeOld: boolean = true,
-	filterOverwrite: AnyFilter | undefined = undefined
+	filterOverwrite: AnyFilter | undefined = undefined,
+	signal?: AbortSignal
 ) {
 	if (!hasFeatureAnywhere(getUserDetails().permissions, type)) return;
 
@@ -73,7 +88,7 @@ export async function updateMapObject(
 		} else if (type === MapObjectType.TAPPABLE) {
 			filter = getUserSettings().filters.tappable;
 		} else if (type === MapObjectType.S2_CELL) {
-			filter = getUserSettings().filters.s2cell
+			filter = getUserSettings().filters.s2cell;
 		} else {
 			console.log("unknown type while udpating map objects!");
 			return;
@@ -82,7 +97,7 @@ export async function updateMapObject(
 
 	if (!filter || !filter.enabled) {
 		clearMapObjects(type);
-		updateFeatures(getMapObjects());
+		if (!signal) updateFeatures(getMapObjects());
 		return;
 	}
 
@@ -92,7 +107,8 @@ export async function updateMapObject(
 		data = getS2CellMapObjects(getBounds(), filter as FilterS2Cell);
 		examined = data.length;
 	} else {
-		const response = await fetchMapObjects(type, getBounds(), filter);
+		const response = await fetchMapObjects(type, getBounds(), filter, signal);
+		if (signal?.aborted) return;
 		if (response) {
 			data = response.data;
 			examined = response.examined;
@@ -105,7 +121,10 @@ export async function updateMapObject(
 		clearMapObjects(type);
 	}
 
-	if (!data || data.length === 0) return;
+	if (!data || data.length === 0) {
+		if (!signal) updateFeatures(getMapObjects());
+		return;
+	}
 
 	try {
 		addMapObjects(data, type, examined);
@@ -114,25 +133,37 @@ export async function updateMapObject(
 		console.error(e);
 	}
 
-	updateFeatures(getMapObjects());
+	if (!signal) updateFeatures(getMapObjects());
 }
 
 export async function updateAllMapObjects(removeOld: boolean = true) {
-	if (getIsCoverageMapActive()) return
+	if (getIsCoverageMapActive()) return;
+
+	currentController?.abort();
+	const controller = new AbortController();
+	currentController = controller;
 
 	const activeSearch = getActiveSearch();
 
 	if (activeSearch) {
 		for (const mapObjectType of allMapObjectTypes) {
-			if (mapObjectType !== activeSearch.mapObject) clearMapObjects(mapObjectType)
+			if (mapObjectType !== activeSearch.mapObject) clearMapObjects(mapObjectType);
 		}
-		await updateMapObject(activeSearch.mapObject, removeOld, activeSearch.filter);
+		await updateMapObject(
+			activeSearch.mapObject,
+			removeOld,
+			activeSearch.filter,
+			controller.signal
+		);
 	} else {
 		await Promise.all([
-			...allMapObjectTypes.map((type) => {
-				updateMapObject(type, removeOld);
-			}),
+			...allMapObjectTypes.map((type) =>
+				updateMapObject(type, removeOld, undefined, controller.signal)
+			),
 			updateWeather()
 		]);
 	}
+
+	if (controller.signal.aborted) return;
+	updateFeatures(getMapObjects());
 }
