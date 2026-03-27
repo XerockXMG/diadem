@@ -114,7 +114,7 @@ async function photonSearchAddress(
 				p[p.type] = p.name
 			}
 
-			const formattedAddressParts = addressFormatter.format(
+			let formattedAddressParts = addressFormatter.format(
 				{
 					house: p.house,
 					road: p.street,
@@ -135,10 +135,11 @@ async function photonSearchAddress(
 				}
 			);
 
-			const label =
-				formattedAddressParts.length > 2
-					? formattedAddressParts.slice(0, -1).join(", ")
-					: formattedAddressParts.join(", ");
+			if (!["city", "county", "state", "country"].includes(p.type ?? "")) {
+				formattedAddressParts = formattedAddressParts.slice(0, -1)
+			}
+
+			const label = formattedAddressParts.join(", ");
 
 			return {
 				name: label,
