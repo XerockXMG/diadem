@@ -10,7 +10,6 @@
 	import { mRaid } from "@/lib/services/ingameLocale";
 	import { makeAttributeRaidShowLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import * as m from "@/lib/paraglide/messages";
-
 	let {
 		data
 	}: {

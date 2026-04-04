@@ -15,7 +15,6 @@
 	import { makeAttributeItemLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import QuestRewardItemAttribute from "@/components/menus/filters/filterset/quest/QuestRewardItemAttribute.svelte";
 	import QuestFilterDisplay from "@/components/menus/filters/filterset/quest/QuestFilterDisplay.svelte";
-
 	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetQuest
 		| undefined;

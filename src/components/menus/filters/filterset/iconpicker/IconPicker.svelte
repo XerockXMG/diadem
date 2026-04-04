@@ -2,7 +2,6 @@
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import { IconCategory } from "@/lib/features/filters/icons";
 	import {
-		filtersetPageSave,
 		filtersetPageSaveSimple,
 		getFiltersetPageTransition
 	} from "@/lib/features/filters/filtersetPages.svelte";
@@ -85,13 +84,9 @@
 	}
 </script>
 
-<div
-	class="w-full absolute top-0"
-	in:fly={getFiltersetPageTransition().in}
-	out:fly={getFiltersetPageTransition().out}
->
+<div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
 	<input
-		class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring w-full h-11 rounded-md border px-3 py-2 text-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 mb-2"
+		class="mt-1 border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring w-full h-11 rounded-md border px-3 py-2 text-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 mb-2"
 		type="search"
 		placeholder={m.icon_search_placeholder()}
 		value={searchQuery}

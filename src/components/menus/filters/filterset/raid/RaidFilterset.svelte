@@ -13,13 +13,12 @@
 	} from "@/lib/features/filters/makeAttributeChipLabel";
 	import Card from "@/components/ui/Card.svelte";
 	import RaidTypeAttribute from "@/components/menus/filters/filterset/raid/RaidTypeAttribute.svelte";
-	import type { RaidFilterType } from "@/lib/utils/gymUtils";
+	import { RaidLevel, type RaidFilterType } from "@/lib/utils/gymUtils";
 	import HatchedLevelAttribute from "@/components/menus/filters/filterset/raid/HatchedLevelAttribute.svelte";
 	import RaidLevelAttribute from "@/components/menus/filters/filterset/raid/RaidLevelAttribute.svelte";
 	import RaidBossAttribute from "@/components/menus/filters/filterset/raid/RaidBossAttribute.svelte";
 	import RaidFilterDisplay from "@/components/menus/filters/filterset/raid/RaidFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-
 	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetRaid
 		| undefined;
@@ -36,7 +35,6 @@
 	titleShared={m.shared_raid_filter()}
 	titleNew={m.new_raid_filter()}
 	titleEdit={m.edit_raid_filter()}
-	height={136}
 >
 	{#snippet base()}
 		{#if data}

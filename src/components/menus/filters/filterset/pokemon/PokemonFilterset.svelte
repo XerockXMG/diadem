@@ -22,7 +22,6 @@
 	} from "@/lib/features/filters/filterUtilsPokemon";
 	import PokemonFilterDisplay from "@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetPokemon
 		| undefined;
@@ -36,7 +35,6 @@
 	titleShared={m.shared_pokemon_filter()}
 	titleNew={m.filterset_title_new_pokemon()}
 	titleEdit={m.filterset_title_edit_pokemon()}
-	height={134}
 >
 	{#snippet base()}
 		{#if data}

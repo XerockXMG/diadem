@@ -6,6 +6,7 @@
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { Snippet } from "svelte";
 	import * as m from "@/lib/paraglide/messages";
+	import Separator from "@/components/ui/Separator.svelte";
 
 	let {
 		base
@@ -17,7 +18,7 @@
 </script>
 
 <div
-	class="w-full absolute top-0 h-full flex flex-col"
+	class="flex flex-col"
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >
@@ -28,11 +29,7 @@
 		</span>
 	</div>
 
-	<div class="flex items-center gap-4 my-3">
-		<div class="bg-border h-px w-full"></div>
-		<span class="text-muted-foreground text-sm whitespace-nowrap">{m.filter_attributes()}</span>
-		<div class="bg-border h-px w-full"></div>
-	</div>
+	<Separator class="my-3" text={m.filter_attributes()} />
 
 	{#if filterset?.data}
 		<div class="overflow-y-auto">

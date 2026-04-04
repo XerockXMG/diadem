@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
-	import Input from "@/components/ui/input/Input.svelte";
 	import TextInput from "@/components/ui/input/TextInput.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import MenuTitle from "@/components/menus/MenuTitle.svelte";
@@ -8,13 +7,11 @@
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import {
 		filtersetPageEditAttribute,
-		getFiltersetPageTransition,
 		setCurrentAttributePage
 	} from "@/lib/features/filters/filtersetPages.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { Pencil } from "lucide-svelte";
 	import IconPicker from "@/components/menus/filters/filterset/iconpicker/IconPicker.svelte";
-	import { fly } from "svelte/transition";
 
 	let {
 		data
@@ -32,11 +29,7 @@
 	<IconPicker data={thisData} />
 {/snippet}
 
-<div
-	class="w-full absolute top-0"
-	in:fly={getFiltersetPageTransition().in}
-	out:fly={getFiltersetPageTransition().out}
->
+<div>
 	<MenuTitle title={m.filter_icon()} />
 	<div class="flex justify-center">
 		<div class="relative">

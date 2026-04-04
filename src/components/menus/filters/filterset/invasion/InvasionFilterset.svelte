@@ -32,7 +32,6 @@
 	let data: FiltersetInvasion | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetInvasion
 		| undefined;
-
 	let filterType: InvasionFilterType = $derived(
 		Object.hasOwn(data ?? {}, "rewards")
 			? InvasionFilterType.REWARDS
@@ -98,7 +97,6 @@
 	titleShared={m.shared_invasion_filter()}
 	titleNew={m.new_invasion_filter()}
 	titleEdit={m.edit_invasion_filter()}
-	height={136}
 >
 	{#snippet base()}
 		{#if data}
