@@ -296,17 +296,17 @@
 		{#if showLittle(data) || showGreat(data) || showUltra(data)}
 			PVP Rankings:
 			<div class="mb-3 space-y-1">
-				{#each data.pvp?.little ?? [] as entry (entry.rank)}
+				{#each data.pvp?.little ?? [] as entry}
 					{#if (entry.rank ?? 100000) <= maxLittleRank}
 						<PvpEntry data={entry} league="little" />
 					{/if}
 				{/each}
-				{#each data.pvp?.great ?? [] as entry (entry.rank)}
+				{#each data.pvp?.great ?? [] as entry}
 					{#if (entry.rank ?? 100000) <= maxGreatRank}
 						<PvpEntry data={entry} league="great" />
 					{/if}
 				{/each}
-				{#each data.pvp?.ultra ?? [] as entry (entry.rank)}
+				{#each data.pvp?.ultra ?? [] as entry}
 					{#if (entry.rank ?? 100000) <= maxUltraRank}
 						<PvpEntry data={entry} league="ultra" />
 					{/if}
