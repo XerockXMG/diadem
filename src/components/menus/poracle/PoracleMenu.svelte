@@ -300,10 +300,9 @@
 			<div class="flex flex-col gap-1.5 rounded-md border border-border p-3 bg-muted/30">
 				<p class="text-xs font-medium">{m.poracle_location()}</p>
 				<p class="text-xs text-muted-foreground">{m.poracle_location_hint()}</p>
-				{@const human = getHumanInfo()}
-				{#if human?.latitude != null && human?.longitude != null}
+				{#if getHumanInfo()?.latitude != null && getHumanInfo()?.longitude != null}
 					<p class="text-xs text-foreground font-mono">
-						{human.latitude.toFixed(5)}, {human.longitude.toFixed(5)}
+						{getHumanInfo()!.latitude!.toFixed(5)}, {getHumanInfo()!.longitude!.toFixed(5)}
 					</p>
 				{/if}
 				<Button onclick={onUseMapCenter} disabled={savingLocation} size="sm" variant="outline">
@@ -315,12 +314,11 @@
 			<div class="flex flex-col gap-1.5 rounded-md border border-border p-3 bg-muted/30">
 				<p class="text-xs font-medium">{m.poracle_areas()}</p>
 				<p class="text-xs text-muted-foreground">{m.poracle_areas_hint()}</p>
-				{@const areas = getAvailableAreas()}
-				{#if areas.length === 0}
+				{#if getAvailableAreas().length === 0}
 					<p class="text-xs text-muted-foreground">{m.poracle_no_areas()}</p>
 				{:else}
 					<div class="flex flex-col gap-1 max-h-40 overflow-y-auto">
-						{#each areas as area (area.name)}
+						{#each getAvailableAreas() as area (area.name)}
 							<label class="flex items-center gap-2 cursor-pointer py-0.5">
 								<input
 									type="checkbox"
