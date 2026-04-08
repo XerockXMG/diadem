@@ -514,7 +514,7 @@
 
 					<!-- Distance -->
 					<div class="flex items-center gap-2">
-						<label class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</label>
+						<span class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</span>
 						<input type="number" min="0" step="100" bind:value={pokemonDistance}
 							class="flex-1 rounded-md border border-input bg-background px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
 					</div>
@@ -591,7 +591,7 @@
 						</label>
 					</div>
 					<div class="flex items-center gap-2">
-						<label class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</label>
+						<span class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</span>
 						<input type="number" min="0" step="100" bind:value={raidDistance}
 							class="flex-1 rounded-md border border-input bg-background px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
 					</div>
@@ -636,7 +636,7 @@
 						</div>
 					{/if}
 					<div class="flex items-center gap-2">
-						<label class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</label>
+						<span class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</span>
 						<input type="number" min="0" step="100" bind:value={questDistance}
 							class="flex-1 rounded-md border border-input bg-background px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
 					</div>
@@ -644,8 +644,9 @@
 				{:else if activeTab === "invasion"}
 					{@const gruntTypes = getGruntTypes()}
 					<div class="flex flex-col gap-1">
-						<label class="text-xs text-muted-foreground">{m.poracle_grunt_type()}</label>
+						<label for="invasion-grunt-type" class="text-xs text-muted-foreground">{m.poracle_grunt_type()}</label>
 						<select
+							id="invasion-grunt-type"
 							bind:value={invasionGruntType}
 							class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						>
@@ -656,7 +657,7 @@
 						</select>
 					</div>
 					<div class="flex items-center gap-2">
-						<label class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</label>
+						<span class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</span>
 						<input type="number" min="0" step="100" bind:value={invasionDistance}
 							class="flex-1 rounded-md border border-input bg-background px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
 					</div>
