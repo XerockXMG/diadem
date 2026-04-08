@@ -114,6 +114,10 @@ export function getAllLureModuleIds(): number[] {
 	return masterFile.items.filter((i) => i.startsWith("5")).map(Number);
 }
 
+export function getAllItemIds(): number[] {
+	return masterFile.items.map(Number);
+}
+
 const cpMultipliers = {
 	10: 0.422500014305115,
 	15: 0.517393946647644,

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-svelte";
+	import { Plus, Trash2, ChevronDown, ChevronRight, Settings } from "lucide-svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
@@ -27,9 +27,9 @@
 	import type { PoracleTrackingRule } from "@/lib/server/api/poracleApi.js";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
 	import Metadata from "@/components/utils/Metadata.svelte";
-	import { getSpawnablePokemon } from "@/lib/services/masterfile.js";
-	import { mPokemon } from "@/lib/services/ingameLocale.js";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
+	import { getSpawnablePokemon, getAllItemIds } from "@/lib/services/masterfile.js";
+	import { mPokemon, mItem } from "@/lib/services/ingameLocale.js";
+	import { getIconPokemon, getIconItem } from "@/lib/services/uicons.svelte.js";
 	import { getMap } from "@/lib/map/map.svelte.js";
 
 	// ---------------------------------------------------------------------------
@@ -87,8 +87,7 @@
 	// ---------------------------------------------------------------------------
 
 	type MenuTab = PoracleTrackType | "settings";
-	const ALL_TABS: MenuTab[] = [...PORACLE_TRACK_TYPES, "settings"];
-	const TAB_LABELS: Record<MenuTab, string> = {
+const TAB_LABELS: Record<MenuTab, string> = {
 		pokemon: "Pokémon",
 		raid: "Raids",
 		quest: "Quests",
@@ -155,6 +154,12 @@
 	let questRewardType = $state<QuestRewardType>(7);
 	let questPokemonSearch = $state("");
 	let questPokemon: { pokemon_id: number; form: number } | null = $state(null);
+	let questItemSearch = $state("");
+	let questItemId: number | null = $state(null);
+	let questCandySearch = $state("");
+	let questCandyPokemon: { pokemon_id: number; form: number } | null = $state(null);
+	let questMegaSearch = $state("");
+	let questMegaPokemon: { pokemon_id: number; form: number } | null = $state(null);
 	let questDistance = $state(0);
 
 	let invasionGruntType = $state("");
@@ -187,6 +192,27 @@
 
 	let questPokemonSearchResults = $derived.by(() => {
 		const q = questPokemonSearch.toLowerCase();
+		if (!q) return [];
+		return getSpawnablePokemon().filter((p) => mPokemon(p).toLowerCase().includes(q)).slice(0, 8);
+	});
+
+	let questItemSearchResults = $derived.by(() => {
+		const q = questItemSearch.toLowerCase();
+		if (!q) return [];
+		return getAllItemIds()
+			.map((id) => ({ id, name: mItem(id) }))
+			.filter((i) => i.name && i.name.toLowerCase().includes(q))
+			.slice(0, 10);
+	});
+
+	let questCandySearchResults = $derived.by(() => {
+		const q = questCandySearch.toLowerCase();
+		if (!q) return [];
+		return getSpawnablePokemon().filter((p) => mPokemon(p).toLowerCase().includes(q)).slice(0, 8);
+	});
+
+	let questMegaSearchResults = $derived.by(() => {
+		const q = questMegaSearch.toLowerCase();
 		if (!q) return [];
 		return getSpawnablePokemon().filter((p) => mPokemon(p).toLowerCase().includes(q)).slice(0, 8);
 	});
@@ -242,6 +268,12 @@
 		questRewardType = 7;
 		questPokemonSearch = "";
 		questPokemon = null;
+		questItemSearch = "";
+		questItemId = null;
+		questCandySearch = "";
+		questCandyPokemon = null;
+		questMegaSearch = "";
+		questMegaPokemon = null;
 		questDistance = 0;
 		invasionGruntType = "";
 		invasionDistance = 0;
@@ -353,6 +385,9 @@
 		} else if (activeTab === "quest") {
 			const rule: Record<string, unknown> = { reward_type: questRewardType, distance: questDistance };
 			if (questRewardType === 7 && questPokemon) rule.reward = questPokemon.pokemon_id;
+			else if (questRewardType === 2 && questItemId) rule.reward = questItemId;
+			else if (questRewardType === 4 && questCandyPokemon) rule.reward = questCandyPokemon.pokemon_id;
+			else if (questRewardType === 12 && questMegaPokemon) rule.reward = questMegaPokemon.pokemon_id;
 			result = await trackRule("quest", rule);
 		} else {
 			result = await trackRule("invasion", { grunt_type: invasionGruntType, distance: invasionDistance });
@@ -439,8 +474,19 @@
 				parts.push(`L${lvlStr} Raid`);
 			}
 		} else if (type === "quest") {
-			const rtLabel = QUEST_REWARD_OPTIONS.find((o) => o.value === rule.reward_type)?.label;
-			parts.push(rtLabel ?? "Quest");
+			const rt = rule.reward_type;
+			if (rt === 7 && rule.reward) {
+				parts.push(mPokemon({ pokemon_id: rule.reward }));
+			} else if (rt === 2 && rule.reward) {
+				parts.push(mItem(rule.reward));
+			} else if (rt === 4 && rule.reward) {
+				parts.push(`${mPokemon({ pokemon_id: rule.reward })} ${m.candy()}`);
+			} else if (rt === 12 && rule.reward) {
+				parts.push(`${mPokemon({ pokemon_id: rule.reward })} ${m.mega_energy()}`);
+			} else {
+				const rtLabel = QUEST_REWARD_OPTIONS.find((o) => o.value === rt)?.label;
+				parts.push(rtLabel ?? "Quest");
+			}
 		} else if (type === "invasion") {
 			const gt = rule.grunt_type;
 			parts.push(gt ? (gt.charAt(0).toUpperCase() + gt.slice(1)) : m.poracle_grunt_any());
@@ -467,31 +513,47 @@
 <Metadata title={m.nav_poracle()} />
 
 <Card class="py-3 px-2 flex flex-col gap-2">
-	<!-- Tabs -->
-	<div class="flex gap-1 flex-wrap">
-		{#each ALL_TABS as tab}
+	<!-- Tabs + controls -->
+	<div class="flex gap-1 items-start">
+		<!-- Type tabs (wrap if needed) -->
+		<div class="flex gap-1 flex-wrap flex-1">
+			{#each PORACLE_TRACK_TYPES as tab}
+				<button
+					class="px-3 py-1 rounded-md text-sm font-medium transition-colors
+						{activeTab === tab
+						? 'bg-primary text-primary-foreground'
+						: 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
+					onclick={() => toggleTab(tab)}
+				>
+					{TAB_LABELS[tab]}
+				</button>
+			{/each}
+		</div>
+		<!-- Right column: gear above plus -->
+		<div class="flex flex-col gap-1 shrink-0">
 			<button
-				class="px-3 py-1 rounded-md text-sm font-medium transition-colors
-					{activeTab === tab
-					? 'bg-primary text-primary-foreground'
-					: 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
-				onclick={() => toggleTab(tab)}
-			>
-				{TAB_LABELS[tab]}
-			</button>
-		{/each}
-		{#if activeTab !== "settings"}
-			<button
-				class="ml-auto px-2 py-1 rounded-md text-sm font-medium transition-colors
-					{showAddForm
+				class="p-1.5 rounded-md transition-colors
+					{activeTab === 'settings'
 					? 'bg-primary text-primary-foreground'
 					: 'text-muted-foreground hover:text-foreground hover:bg-accent'}"
-				onclick={() => (showAddForm = !showAddForm)}
-				aria-label={m.create_new()}
+				onclick={() => toggleTab('settings')}
+				aria-label={m.poracle_settings()}
 			>
-				<Plus size={16} />
+				<Settings size={16} />
 			</button>
-		{/if}
+			{#if activeTab !== "settings"}
+				<button
+					class="p-1.5 rounded-md transition-colors
+						{showAddForm
+						? 'bg-primary text-primary-foreground'
+						: 'text-muted-foreground hover:text-foreground hover:bg-accent'}"
+					onclick={() => (showAddForm = !showAddForm)}
+					aria-label={m.create_new()}
+				>
+					<Plus size={16} />
+				</button>
+			{/if}
+		</div>
 	</div>
 
 	<!-- ======= SETTINGS TAB ======= -->
@@ -852,6 +914,8 @@
 							<option value={opt.value}>{opt.label}</option>
 						{/each}
 					</select>
+
+					<!-- Pokémon reward -->
 					{#if questRewardType === 7}
 						<div class="relative">
 							<input type="text" placeholder={m.poracle_search_pokemon()} bind:value={questPokemonSearch}
@@ -875,7 +939,83 @@
 								</div>
 							{/if}
 						</div>
+
+					<!-- Item reward -->
+					{:else if questRewardType === 2}
+						<div class="relative">
+							<input type="text" placeholder="Search items..." bind:value={questItemSearch}
+								class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+							{#if questItemId}
+								<p class="text-xs text-primary mt-1 flex items-center gap-1">
+									<img src={getIconItem(questItemId)} alt={mItem(questItemId)} class="w-5 h-5" />
+									{mItem(questItemId)}
+									<button class="ml-1 text-muted-foreground" onclick={() => { questItemId = null; questItemSearch = ""; }}>×</button>
+								</p>
+							{/if}
+							{#if questItemSearchResults.length > 0 && !questItemId}
+								<div class="absolute z-10 mt-0.5 w-full rounded-md border border-border bg-popover shadow-md max-h-40 overflow-y-auto">
+									{#each questItemSearchResults as item (item.id)}
+										<button class="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-accent text-left"
+											onclick={() => { questItemId = item.id; questItemSearch = ""; }}>
+											<img src={getIconItem(item.id)} alt={item.name} class="w-6 h-6" />
+											{item.name}
+										</button>
+									{/each}
+								</div>
+							{/if}
+						</div>
+
+					<!-- Candy reward -->
+					{:else if questRewardType === 4}
+						<div class="relative">
+							<input type="text" placeholder={m.poracle_search_pokemon()} bind:value={questCandySearch}
+								class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+							{#if questCandyPokemon}
+								<p class="text-xs text-primary mt-1 flex items-center gap-1">
+									<img src={getIconPokemon(questCandyPokemon)} alt={mPokemon(questCandyPokemon)} class="w-5 h-5" />
+									{mPokemon(questCandyPokemon)}
+									<button class="ml-1 text-muted-foreground" onclick={() => { questCandyPokemon = null; questCandySearch = ""; }}>×</button>
+								</p>
+							{/if}
+							{#if questCandySearchResults.length > 0 && !questCandyPokemon}
+								<div class="absolute z-10 mt-0.5 w-full rounded-md border border-border bg-popover shadow-md max-h-40 overflow-y-auto">
+									{#each questCandySearchResults as p (p.pokemon_id + "-" + p.form)}
+										<button class="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-accent text-left"
+											onclick={() => { questCandyPokemon = p; questCandySearch = ""; }}>
+											<img src={getIconPokemon(p)} alt={mPokemon(p)} class="w-6 h-6" />
+											{mPokemon(p)}
+										</button>
+									{/each}
+								</div>
+							{/if}
+						</div>
+
+					<!-- Mega Energy reward -->
+					{:else if questRewardType === 12}
+						<div class="relative">
+							<input type="text" placeholder={m.poracle_search_pokemon()} bind:value={questMegaSearch}
+								class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+							{#if questMegaPokemon}
+								<p class="text-xs text-primary mt-1 flex items-center gap-1">
+									<img src={getIconPokemon(questMegaPokemon)} alt={mPokemon(questMegaPokemon)} class="w-5 h-5" />
+									{mPokemon(questMegaPokemon)}
+									<button class="ml-1 text-muted-foreground" onclick={() => { questMegaPokemon = null; questMegaSearch = ""; }}>×</button>
+								</p>
+							{/if}
+							{#if questMegaSearchResults.length > 0 && !questMegaPokemon}
+								<div class="absolute z-10 mt-0.5 w-full rounded-md border border-border bg-popover shadow-md max-h-40 overflow-y-auto">
+									{#each questMegaSearchResults as p (p.pokemon_id + "-" + p.form)}
+										<button class="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-accent text-left"
+											onclick={() => { questMegaPokemon = p; questMegaSearch = ""; }}>
+											<img src={getIconPokemon(p)} alt={mPokemon(p)} class="w-6 h-6" />
+											{mPokemon(p)}
+										</button>
+									{/each}
+								</div>
+							{/if}
+						</div>
 					{/if}
+
 					<div class="flex items-center gap-2">
 						<span class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</span>
 						<input type="number" min="0" step="100" bind:value={questDistance}
