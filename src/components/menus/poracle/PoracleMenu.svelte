@@ -24,11 +24,11 @@
 		PORACLE_TRACK_TYPES,
 		type PoracleTrackType
 	} from "@/lib/features/poracle.svelte.js";
+	import type { PoracleTrackingRule } from "@/lib/server/api/poracleApi.js";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import { getSpawnablePokemon } from "@/lib/services/masterfile.js";
 	import { mPokemon } from "@/lib/services/ingameLocale.js";
-	import { resize } from "@/lib/services/assets.js";
 	import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
 	import { getMap } from "@/lib/map/map.svelte.js";
 
@@ -37,11 +37,17 @@
 	let activeTab: MenuTab = $state("pokemon");
 	let showAddForm = $state(false);
 	let submitting = $state(false);
+	let showAdvanced = $state(false);
 
 	// Pokemon form
 	let pokemonSearch = $state("");
 	let selectedPokemon: { pokemon_id: number; form: number } | null = $state(null);
-	let pokemonMinIv = $state(90);
+	let pokemonMinIv = $state(0);
+	let pokemonMaxIv = $state(100);
+	let pokemonMinLevel = $state(0);
+	let pokemonMaxLevel = $state(35);
+	let pokemonGender = $state(0); // 0=any, 1=male, 2=female
+	let pokemonClean = $state(false);
 	let pokemonDistance = $state(0);
 
 	// Raid form
@@ -50,6 +56,8 @@
 	let raidLevels = $state<number[]>([5]);
 	let raidBoss: { pokemon_id: number; form: number } | null = $state(null);
 	let raidBossSearch = $state("");
+	let raidTeam = $state(0); // 0=any, 1=mystic, 2=valor, 3=instinct
+	let raidClean = $state(false);
 	let raidDistance = $state(0);
 
 	// Quest form
@@ -67,6 +75,7 @@
 	let selectedAreas = $state<string[]>([]);
 	let savingAreas = $state(false);
 	let savingLocation = $state(false);
+	let areaSearch = $state("");
 
 	const RAID_LEVELS = [1, 3, 4, 5, 6];
 	const RAID_LEVEL_LABELS: Record<number, string> = {
@@ -83,6 +92,19 @@
 		{ value: 3, label: m.stardust() },
 		{ value: 12, label: m.mega_energy() },
 		{ value: 4, label: m.candy() }
+	];
+
+	const TEAM_OPTIONS = [
+		{ value: 0, label: m.poracle_team_any() },
+		{ value: 1, label: m.poracle_team_mystic() },
+		{ value: 2, label: m.poracle_team_valor() },
+		{ value: 3, label: m.poracle_team_instinct() }
+	];
+
+	const GENDER_OPTIONS = [
+		{ value: 0, label: m.poracle_gender_any() },
+		{ value: 1, label: m.poracle_gender_male() },
+		{ value: 2, label: m.poracle_gender_female() }
 	];
 
 	let pokemonSearchResults = $derived.by(() => {
@@ -116,14 +138,22 @@
 
 	function resetForm() {
 		showAddForm = false;
+		showAdvanced = false;
 		pokemonSearch = "";
 		selectedPokemon = null;
-		pokemonMinIv = 90;
+		pokemonMinIv = 0;
+		pokemonMaxIv = 100;
+		pokemonMinLevel = 0;
+		pokemonMaxLevel = 35;
+		pokemonGender = 0;
+		pokemonClean = false;
 		pokemonDistance = 0;
 		raidMode = "level";
 		raidLevels = [5];
 		raidBoss = null;
 		raidBossSearch = "";
+		raidTeam = 0;
+		raidClean = false;
 		raidDistance = 0;
 		questRewardType = 7;
 		questPokemonSearch = "";
@@ -180,7 +210,11 @@
 				pokemon_id: selectedPokemon.pokemon_id,
 				form: selectedPokemon.form,
 				min_iv: pokemonMinIv,
-				max_iv: 100,
+				max_iv: pokemonMaxIv,
+				min_level: pokemonMinLevel,
+				max_level: pokemonMaxLevel,
+				gender: pokemonGender,
+				clean: pokemonClean,
 				distance: pokemonDistance
 			});
 			ok = result.ok;
@@ -194,6 +228,8 @@
 				const result = await trackRule("raid", {
 					pokemon_id: raidBoss.pokemon_id,
 					form: raidBoss.form,
+					team: raidTeam,
+					clean: raidClean,
 					distance: raidDistance
 				});
 				ok = result.ok;
@@ -202,7 +238,12 @@
 					submitting = false;
 					return;
 				}
-				const result = await trackRule("raid", { level: raidLevels, distance: raidDistance });
+				const result = await trackRule("raid", {
+					level: raidLevels,
+					team: raidTeam,
+					clean: raidClean,
+					distance: raidDistance
+				});
 				ok = result.ok;
 			}
 		} else if (activeTab === "quest") {
@@ -246,6 +287,46 @@
 		const ok = await saveLocation(center.lat, center.lng);
 		savingLocation = false;
 		openToast(ok ? m.poracle_location_saved() : m.poracle_location_error());
+	}
+
+	// Build a meaningful description from raw rule data when server doesn't provide one
+	function describeRule(type: PoracleTrackType, rule: PoracleTrackingRule): string {
+		if (rule.description) return rule.description;
+
+		const parts: string[] = [];
+
+		if (type === "pokemon") {
+			const pid = rule.pokemon_id ?? 0;
+			const name = pid > 0 && pid < 9000
+				? mPokemon({ pokemon_id: pid, form: rule.form ?? 0 })
+				: m.poracle_everything();
+			parts.push(name);
+			const minIv = rule.min_iv ?? -1;
+			const maxIv = rule.max_iv ?? 100;
+			if (minIv > 0 || maxIv < 100) parts.push(`IV ${minIv}–${maxIv}%`);
+			const minLvl = rule.min_level ?? 0;
+			const maxLvl = rule.max_level ?? 35;
+			if (minLvl > 0 || maxLvl < 35) parts.push(`Lvl ${minLvl}–${maxLvl}`);
+		} else if (type === "raid") {
+			const pid = rule.pokemon_id ?? 0;
+			if (pid > 0 && pid < 9000) {
+				parts.push(mPokemon({ pokemon_id: pid, form: rule.form ?? 0 }));
+			} else {
+				const lvl = rule.level;
+				const lvlStr = Array.isArray(lvl) ? lvl.join(",") : lvl;
+				parts.push(lvlStr ? `L${lvlStr} Raid` : "Any Raid");
+			}
+		} else if (type === "quest") {
+			const rtLabel = QUEST_REWARD_OPTIONS.find((o) => o.value === rule.reward_type)?.label;
+			parts.push(rtLabel ?? "Quest");
+		} else if (type === "invasion") {
+			const gt = rule.grunt_type;
+			parts.push(gt ? (gt.charAt(0).toUpperCase() + gt.slice(1)) : m.poracle_grunt_any());
+			parts.push(m.pogo_invasion());
+		}
+
+		if (rule.distance && rule.distance > 0) parts.push(`${rule.distance}m`);
+		return parts.join(" | ") || `Rule #${rule.uid}`;
 	}
 
 	const TAB_LABELS: Record<MenuTab, string> = {
@@ -317,21 +398,37 @@
 				{#if getAvailableAreas().length === 0}
 					<p class="text-xs text-muted-foreground">{m.poracle_no_areas()}</p>
 				{:else}
-					<div class="flex flex-col gap-1 max-h-40 overflow-y-auto">
-						{#each getAvailableAreas() as area (area.name)}
-							<label class="flex items-center gap-2 cursor-pointer py-0.5">
-								<input
-									type="checkbox"
-									class="rounded"
-									checked={selectedAreas.includes(area.name.toLowerCase())}
-									onchange={() => toggleArea(area.name.toLowerCase())}
-								/>
-								<span class="text-sm">{area.name}</span>
-								{#if area.group}
-									<span class="text-xs text-muted-foreground ml-auto">{area.group}</span>
-								{/if}
-							</label>
-						{/each}
+					{@const filteredAreas = areaSearch
+						? getAvailableAreas().filter((a) =>
+								a.name.toLowerCase().includes(areaSearch.toLowerCase()) ||
+								(a.group ?? "").toLowerCase().includes(areaSearch.toLowerCase())
+							)
+						: getAvailableAreas()}
+					<input
+						type="text"
+						placeholder="Search areas..."
+						bind:value={areaSearch}
+						class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+					/>
+					<div class="flex flex-col gap-1 max-h-48 overflow-y-auto">
+						{#if filteredAreas.length === 0}
+							<p class="text-xs text-muted-foreground py-1">No areas match</p>
+						{:else}
+							{#each filteredAreas as area (area.name)}
+								<label class="flex items-center gap-2 cursor-pointer py-0.5">
+									<input
+										type="checkbox"
+										class="rounded"
+										checked={selectedAreas.includes(area.name.toLowerCase())}
+										onchange={() => toggleArea(area.name.toLowerCase())}
+									/>
+									<span class="text-sm">{area.name}</span>
+									{#if area.group}
+										<span class="text-xs text-muted-foreground ml-auto">{area.group}</span>
+									{/if}
+								</label>
+							{/each}
+						{/if}
 					</div>
 					<Button onclick={onSaveAreas} disabled={savingAreas} size="sm" class="w-full">
 						{savingAreas ? m.poracle_loading() : m.poracle_save()}
@@ -345,6 +442,7 @@
 		<!-- Add form -->
 		{#if showAddForm}
 			<div class="flex flex-col gap-2 rounded-md border border-border p-3 bg-muted/30">
+
 				{#if activeTab === "pokemon"}
 					<!-- Pokemon search -->
 					<div class="relative">
@@ -355,7 +453,8 @@
 							class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						/>
 						{#if selectedPokemon}
-							<p class="text-xs text-primary mt-1">
+							<p class="text-xs text-primary mt-1 flex items-center gap-1">
+								<img src={getIconPokemon(selectedPokemon)} alt={mPokemon(selectedPokemon)} class="w-5 h-5" />
 								{mPokemon(selectedPokemon)}
 								<button class="ml-1 text-muted-foreground" onclick={() => { selectedPokemon = null; pokemonSearch = ""; }}>×</button>
 							</p>
@@ -367,17 +466,53 @@
 										class="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-accent text-left"
 										onclick={() => { selectedPokemon = p; pokemonSearch = ""; }}
 									>
-										<img src={resize(getIconPokemon(p), { width: 32 })} alt={mPokemon(p)} class="w-6 h-6" />
+										<img src={getIconPokemon(p)} alt={mPokemon(p)} class="w-6 h-6" />
 										{mPokemon(p)}
 									</button>
 								{/each}
 							</div>
 						{/if}
 					</div>
+
+					<!-- IV range -->
 					<div class="flex items-center gap-2">
-						<label class="text-xs text-muted-foreground whitespace-nowrap w-16 shrink-0">{m.poracle_min_iv()} {pokemonMinIv}%</label>
-						<input type="range" min="0" max="100" step="5" bind:value={pokemonMinIv} class="flex-1" />
+						<span class="text-xs text-muted-foreground w-6 shrink-0">{m.poracle_iv_range()}</span>
+						<input type="number" min="-1" max="100" bind:value={pokemonMinIv}
+							class="w-14 rounded-md border border-input bg-background px-2 py-1 text-sm text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+						<span class="text-xs text-muted-foreground">–</span>
+						<input type="number" min="0" max="100" bind:value={pokemonMaxIv}
+							class="w-14 rounded-md border border-input bg-background px-2 py-1 text-sm text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+						<span class="text-xs text-muted-foreground">%</span>
 					</div>
+
+					<!-- Level range -->
+					<div class="flex items-center gap-2">
+						<span class="text-xs text-muted-foreground w-6 shrink-0">{m.poracle_level_range()}</span>
+						<input type="number" min="0" max="55" bind:value={pokemonMinLevel}
+							class="w-14 rounded-md border border-input bg-background px-2 py-1 text-sm text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+						<span class="text-xs text-muted-foreground">–</span>
+						<input type="number" min="0" max="55" bind:value={pokemonMaxLevel}
+							class="w-14 rounded-md border border-input bg-background px-2 py-1 text-sm text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+					</div>
+
+					<!-- Gender + Clean -->
+					<div class="flex items-center gap-3">
+						<span class="text-xs text-muted-foreground">{m.poracle_gender()}</span>
+						<div class="flex gap-1">
+							{#each GENDER_OPTIONS as g}
+								<button
+									class="px-2 py-0.5 rounded text-xs font-medium transition-colors {pokemonGender === g.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}"
+									onclick={() => (pokemonGender = g.value)}
+								>{g.label}</button>
+							{/each}
+						</div>
+						<label class="flex items-center gap-1.5 ml-auto cursor-pointer">
+							<input type="checkbox" bind:checked={pokemonClean} class="rounded" />
+							<span class="text-xs text-muted-foreground">{m.poracle_clean()}</span>
+						</label>
+					</div>
+
+					<!-- Distance -->
 					<div class="flex items-center gap-2">
 						<label class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</label>
 						<input type="number" min="0" step="100" bind:value={pokemonDistance}
@@ -385,29 +520,25 @@
 					</div>
 
 				{:else if activeTab === "raid"}
+					<!-- Level / Boss toggle -->
 					<div class="flex gap-2">
 						<button
 							class="flex-1 py-1 rounded-md text-xs font-medium {raidMode === 'level' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}"
 							onclick={() => (raidMode = "level")}
-						>
-							{m.poracle_raid_by_level()}
-						</button>
+						>{m.poracle_raid_by_level()}</button>
 						<button
 							class="flex-1 py-1 rounded-md text-xs font-medium {raidMode === 'boss' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}"
 							onclick={() => (raidMode = "boss")}
-						>
-							{m.poracle_raid_by_boss()}
-						</button>
+						>{m.poracle_raid_by_boss()}</button>
 					</div>
+
 					{#if raidMode === "level"}
 						<div class="flex gap-1 flex-wrap">
 							{#each RAID_LEVELS as level}
 								<button
 									class="px-2 py-1 rounded text-xs font-medium {raidLevels.includes(level) ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}"
 									onclick={() => toggleRaidLevel(level)}
-								>
-									{RAID_LEVEL_LABELS[level]}
-								</button>
+								>{RAID_LEVEL_LABELS[level]}</button>
 							{/each}
 						</div>
 					{:else}
@@ -419,7 +550,8 @@
 								class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							/>
 							{#if raidBoss}
-								<p class="text-xs text-primary mt-1">
+								<p class="text-xs text-primary mt-1 flex items-center gap-1">
+									<img src={getIconPokemon(raidBoss)} alt={mPokemon(raidBoss)} class="w-5 h-5" />
 									{mPokemon(raidBoss)}
 									<button class="ml-1 text-muted-foreground" onclick={() => { raidBoss = null; raidBossSearch = ""; }}>×</button>
 								</p>
@@ -431,7 +563,7 @@
 											class="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-accent text-left"
 											onclick={() => { raidBoss = p; raidBossSearch = ""; }}
 										>
-											<img src={resize(getIconPokemon(p), { width: 32 })} alt={mPokemon(p)} class="w-6 h-6" />
+											<img src={getIconPokemon(p)} alt={mPokemon(p)} class="w-6 h-6" />
 											{mPokemon(p)}
 										</button>
 									{/each}
@@ -439,6 +571,25 @@
 							{/if}
 						</div>
 					{/if}
+
+					<!-- Team -->
+					<div class="flex items-center gap-2 flex-wrap">
+						<span class="text-xs text-muted-foreground">{m.poracle_team()}</span>
+						{#each TEAM_OPTIONS as t}
+							<button
+								class="px-2 py-0.5 rounded text-xs font-medium transition-colors {raidTeam === t.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}"
+								onclick={() => (raidTeam = t.value)}
+							>{t.label}</button>
+						{/each}
+					</div>
+
+					<!-- Clean + Distance -->
+					<div class="flex items-center gap-3">
+						<label class="flex items-center gap-1.5 cursor-pointer">
+							<input type="checkbox" bind:checked={raidClean} class="rounded" />
+							<span class="text-xs text-muted-foreground">{m.poracle_clean()}</span>
+						</label>
+					</div>
 					<div class="flex items-center gap-2">
 						<label class="text-xs text-muted-foreground w-16 shrink-0">{m.poracle_distance()}</label>
 						<input type="number" min="0" step="100" bind:value={raidDistance}
@@ -463,7 +614,8 @@
 								class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							/>
 							{#if questPokemon}
-								<p class="text-xs text-primary mt-1">
+								<p class="text-xs text-primary mt-1 flex items-center gap-1">
+									<img src={getIconPokemon(questPokemon)} alt={mPokemon(questPokemon)} class="w-5 h-5" />
 									{mPokemon(questPokemon)}
 									<button class="ml-1 text-muted-foreground" onclick={() => { questPokemon = null; questPokemonSearch = ""; }}>×</button>
 								</p>
@@ -475,7 +627,7 @@
 											class="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-accent text-left"
 											onclick={() => { questPokemon = p; questPokemonSearch = ""; }}
 										>
-											<img src={resize(getIconPokemon(p), { width: 32 })} alt={mPokemon(p)} class="w-6 h-6" />
+											<img src={getIconPokemon(p)} alt={mPokemon(p)} class="w-6 h-6" />
 											{mPokemon(p)}
 										</button>
 									{/each}
@@ -532,7 +684,7 @@
 					{#each rules as rule (rule.uid)}
 						<div class="flex items-start justify-between gap-2 rounded-md px-2 py-1.5 bg-muted/50">
 							<p class="text-sm text-foreground leading-snug flex-1 min-w-0 break-words">
-								{rule.description || `Rule #${rule.uid}`}
+								{describeRule(activeTab as PoracleTrackType, rule)}
 							</p>
 							<button
 								class="shrink-0 text-muted-foreground hover:text-destructive transition-colors p-0.5 mt-0.5"
