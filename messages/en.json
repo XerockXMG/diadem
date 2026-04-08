@@ -514,5 +514,21 @@
 	"poracle_advanced": "Advanced",
 	"poracle_everything": "Everything",
 	"poracle_iv_range": "IV",
-	"poracle_level_range": "Level"
+	"poracle_level_range": "Level",
+	"poracle_cp": "CP",
+	"poracle_attack": "ATK",
+	"poracle_defense": "DEF",
+	"poracle_stamina": "STA",
+	"poracle_size": "Size",
+	"poracle_min_time": "Min Time",
+	"poracle_pvp": "PVP",
+	"poracle_pvp_league": "League",
+	"poracle_pvp_rank": "Rank",
+	"poracle_pvp_none": "None",
+	"poracle_pvp_little": "Little",
+	"poracle_pvp_great": "Great",
+	"poracle_pvp_ultra": "Ultra",
+	"poracle_pvp_master": "Master",
+	"poracle_pvp_level": "Level Cap",
+	"poracle_pvp_level_all": "All"
 }

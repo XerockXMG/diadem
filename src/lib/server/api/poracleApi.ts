@@ -56,6 +56,9 @@ export type PoracleTrackingRule = {
 	pvp_ranking_league?: number;
 	pvp_ranking_best?: number;
 	pvp_ranking_worst?: number;
+	pvp_ranking_min_cp?: number;
+	pvp_ranking_cap?: number;
+	min_time?: number;
 	distance?: number;
 	clean?: number | boolean;
 	level?: number | number[];
