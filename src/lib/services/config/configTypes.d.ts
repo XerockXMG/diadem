@@ -129,6 +129,7 @@ export type ClientConfig = {
 		coverageMap: boolean;
 		scout: boolean;
 		stats: boolean;
+		poracle: boolean;
 	};
 };
 
@@ -168,6 +169,10 @@ export type ServerConfig = {
 	internalDb: DbCreds;
 	auth: Auth;
 	permissions?: Permissions[];
+	poracle?: {
+		url: string;
+		secret: string;
+	};
 	staticMap?: StaticMap;
 	limits?: {
 		enableRateLimiting?: boolean;

@@ -20,6 +20,11 @@ url = "http://127.0.0.1:8080"
 secret = "secret"
 projectName = "reactmap"
 
+# Optional Poracle integration for Discord alerts
+#[server.poracle]
+#url = "http://127.0.0.1:3030"
+#secret = "your-poracle-api-secret"
+
 # For address search, both Pelias and Nominatim are supported.
 # Using Photon is highly recommended. Refer to the readme for more info.
 
@@ -175,6 +180,7 @@ showToolsMenu = true
 coverageMap = true
 scout = true
 stats = true
+poracle = true
 
 # Map Positions for various maps in the UI
 [client.mapPositions]

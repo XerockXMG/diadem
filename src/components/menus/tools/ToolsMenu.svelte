@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Binoculars, ChartColumnBig, Earth } from "lucide-svelte";
+	import { Bell, Binoculars, ChartColumnBig, Earth } from "lucide-svelte";
 	import { FillLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 	import { getDefaultMapStyle } from "@/lib/services/themeMode";
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
@@ -27,6 +27,7 @@
 	import { Coords } from "@/lib/utils/coordinates";
 	import { featureCollection } from "@turf/turf";
 	import * as m from "@/lib/paraglide/messages";
+	import { loadPoracleTracking } from "@/lib/features/poracle.svelte.js";
 </script>
 
 <div class="space-y-2">
@@ -102,6 +103,23 @@
 	<!--		<div></div>-->
 	<!--	</ToolLink>-->
 	<!--{/if}-->
+
+	{#if isSupportedFeature("poracle") && getConfig().tools.poracle && getUserDetails().details}
+		<ToolLink
+			Icon={Bell}
+			title={m.tool_poracle_title()}
+			description={m.tool_poracle_description()}
+			onclick={() => {
+				setJustChangedMenus();
+				loadPoracleTracking();
+				openMenu(Menu.PORACLE);
+			}}
+		>
+			<div class="absolute top-0 right-0 h-full w-1/2 flex items-center justify-center opacity-20">
+				<Bell class="w-16 h-16" />
+			</div>
+		</ToolLink>
+	{/if}
 
 	{#if isSupportedFeature("koji") && getConfig().tools.coverageMap}
 		<ToolLink

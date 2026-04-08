@@ -7,4 +7,4 @@
 
 <MobileMenuMain menus={[Menu.FILTERS, Menu.PROFILE, Menu.TOOLS]} />
 <MobileMenuCoverageMap />
-<MobileMenuStatic menus={[Menu.SCOUT]} />
+<MobileMenuStatic menus={[Menu.SCOUT, Menu.PORACLE]} />

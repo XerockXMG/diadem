@@ -30,7 +30,7 @@
 	} = $props();
 </script>
 
-<Card class="h-full relative overflow-hidden py-4 mx-2 @container">
+<Card class="relative overflow-hidden py-4 mx-2 @container flex flex-col">
 	<CloseButton class="absolute right-2 top-2" onclick={closePopup} />
 	<div class="flex pl-6 pr-3 w-full items-center mb-2">
 		{@render image()}
@@ -62,6 +62,5 @@
 		</div>
 	{/if}
 
-	<div class="h-12"></div>
 	<PopupButtons {lat} {lon} />
 </Card>

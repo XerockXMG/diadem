@@ -28,6 +28,7 @@
 	import PokemonFilterset from "@/components/menus/filters/filterset/pokemon/PokemonFilterset.svelte";
 	import InvasionFilterset from "@/components/menus/filters/filterset/invasion/InvasionFilterset.svelte";
 	import MaxBattleFilterset from "@/components/menus/filters/filterset/maxBattle/MaxBattleFilterset.svelte";
+	import PoracleTrackModal from "@/components/poracle/PoracleTrackModal.svelte";
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
 	import Card from "@/components/ui/Card.svelte";
 	import { Search } from "lucide-svelte";
@@ -79,6 +80,7 @@
 	<RaidFilterset />
 	<InvasionFilterset />
 	<MaxBattleFilterset />
+	<PoracleTrackModal />
 
 	<ContextMenu />
 
