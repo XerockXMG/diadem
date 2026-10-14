@@ -4,8 +4,6 @@ import { remoteLocaleProvider } from "@/lib/server/provider/remoteLocaleProvider
 import { uiconsIndexProvider } from "@/lib/server/provider/uiconsIndexProvider";
 import { startFortApiDetection } from "@/lib/server/api/golbat/fortAvailability";
 import { getLogger } from "@/lib/utils/logger";
-import { isPlayerIdEnabled } from "@/lib/server/api/playerIdApi";
-import { ensureLinkedTrainerTable } from "@/lib/server/db/internal/ensureTables";
 
 export async function initDiadem() {
 	const log = getLogger("init");
@@ -16,8 +14,7 @@ export async function initDiadem() {
 		uiconsIndexProvider.refresh(),
 		remoteLocaleProvider.refresh(),
 		masterstatsProvider.refresh(),
-		startFortApiDetection(),
-		isPlayerIdEnabled() ? ensureLinkedTrainerTable() : undefined
+		startFortApiDetection()
 	]);
 	log.info("Finished initializing");
 }
